@@ -1,0 +1,105 @@
+/* Images */
+
+img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.imgsolidborder {
+  width: 95%;
+  border: solid #021a40 3px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+
+
+/* Boxes */
+
+.alert {  /* Red fill and white text*/
+  padding: 20px;
+  background-color: #f44336;
+  color: white;
+  margin-bottom: 15px;
+}
+
+.info { /* Blue fill and white text*/
+  padding: 20px;
+  background-color: #3366ff; 
+  color: white;
+  margin-bottom: 15px;
+}
+
+
+
+/* Remove the sidebar panel border */
+.well {
+  background-color: #fff;
+  border-style: none;
+}
+
+/* Shiny notification*/
+
+.shiny-notification {
+  position:fixed;
+  top: calc(2%);;
+  left: calc(45%);;
+}
+
+
+
+/* Borders to differentiate different sections
+http://colorbrewer2.org/#type=qualitative&scheme=Set1&n=3 */
+
+.border1 {
+  border: solid #e41a1c 3px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.border2 {
+  border: solid #377eb8 3px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.border3 {
+  border: solid #4daf4a 3px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.border4 {
+  border: solid #808080 3px; /*Ggrey */
+  padding: 10px;
+  border-radius: 8px;
+}
+
+
+
+
+
+/* Misc */
+
+.watermark {
+  opacity: 0.2;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  font-size: 500%;
+  color: #00407d;
+}
+
+.left {
+  float: left;
+}
+
+.cent {
+  width: 50%;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.right {
+  float: right;
+}
