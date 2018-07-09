@@ -82,24 +82,24 @@ shinyServer(
     
     output$province_specimen_blood <- renderPlot({
       amr_blood_filt() %>% 
-        count(province) %>% mutate(province = fct_reorder(province, n, .desc = TRUE)) %>%
+        count(province) %>% mutate(province = fct_reorder(province, n, .desc = FALSE)) %>%
         ggplot(aes(x = province, weight = n)) + 
         geom_bar() +
-        geom_label(aes(y = n, label = n)) +
-        labs(x = NULL, y = "Specimens", title = "Count of Specimens per Patient Province", subtitle = "Blood Culture Only") +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
-              text = element_text(size = 16))
+        geom_label(aes(y = 0.95*n, label = n)) +
+        labs(x = NULL, y = "Total Specimens", title = "per Patient Province", subtitle = "Blood Culture Only") +
+        coord_flip() +
+        theme_minimal(base_size = 15)
     })
     
     output$hospital_specimen_blood <- renderPlot({
       amr_blood_filt() %>% 
-        count(location) %>% mutate(location = fct_reorder(location, n, .desc = TRUE)) %>%
+        count(location) %>% mutate(location = fct_reorder(location, n, .desc = FALSE)) %>%
         ggplot(aes(x = location, weight = n)) + 
         geom_bar() +
-        geom_label(aes(y = n, label = n)) +
-        labs(x = NULL, y = "Specimens", title = "Count of Specimens per Hospital/Service", subtitle = "Blood Culture Only") +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
-              text = element_text(size = 16))
+        geom_label(aes(y = 0.95*n, label = n)) +
+        labs(x = NULL, y = "Total Specimens", title = "per Hospital/Service", subtitle = "Blood Culture Only") +
+        coord_flip() +
+        theme_minimal(base_size = 15)
     })
     
     
@@ -112,29 +112,48 @@ shinyServer(
       geom_bar() +
       geom_label(aes(y = n, label = n)) +
       scale_fill_brewer(palette = "Set2") +
-      labs(x = NULL, y = "Samples", title = "Growth in Blood Samples", subtitle = "Blood Culture Only") +
-      theme(legend.position = "none", text = element_text(size = 14))
+      labs(x = NULL, y = NULL, title = NULL) +
+      theme_minimal(base_size = 16) +
+      theme(legend.position = "none", 
+            axis.title.y = element_blank(),
+            axis.text.y = element_blank(),
+            axis.ticks.y = element_blank(),
+            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
     })
       
     
-    output$count_organisms_blood <- renderPlot({
-      amr_blood_filt() %>% 
+    
+    output$count_organisms_blood <- renderHighchart({
+      df <- amr_blood_filt() %>%
         filter(org_name != "No growth", org_name != "unknown") %>%
-        count(org_name) %>% mutate(org_name = fct_reorder(org_name, n, .desc = FALSE)) %>%
-        ggplot(aes(x = org_name, weight = n)) + 
-        geom_bar() +
-        coord_flip() +
-        labs(x = NULL, y = "Organisms", title = "Count of Organisms", subtitle = "Blood Culture Only") +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
-              text = element_text(size = 16))
+        count(org_name) %>% 
+        arrange(desc(n)) %>%
+        head(n = 20)
+      
+      highchart() %>%
+        hc_chart(type = "bar") %>%
+        hc_xAxis(categories = df$org_name) %>% 
+        hc_add_series(data = df$n, name = "Total Organisms", colorByPoint = TRUE)
     })
+    
+    # output$count_organisms_blood <- renderPlot({
+    #   amr_blood_filt() %>% 
+    #     filter(org_name != "No growth", org_name != "unknown") %>%
+    #     count(org_name) %>% mutate(org_name = fct_reorder(org_name, n, .desc = FALSE)) %>%
+    #     ggplot(aes(x = org_name, weight = n)) + 
+    #     geom_bar() +
+    #     coord_flip() +
+    #     labs(x = NULL, y = "Organisms", title = "Count of Organisms", subtitle = "Blood Culture Only") +
+    #     theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+    #           text = element_text(size = 16))
+    # })
     
     output$table_organisms_blood <- renderDataTable({
       amr_blood_filt() %>% 
         filter(org_name != "No growth", org_name != "unknown") %>%
         count(org_name) %>% mutate(org_name = fct_reorder(org_name, n, .desc = FALSE)) %>%
         transmute(Organisms = org_name, Count = n) %>%
-        datatable(rownames = FALSE, filter = "none", options = list(pageLength = 15))
+        datatable(rownames = FALSE, filter = "none", options = list(pageLength = 100, dom = 'ft'))
     })
     
     output$specimens_method <- renderPlot({
@@ -143,30 +162,32 @@ shinyServer(
         count(spec_method) %>% mutate(spec_method = fct_reorder(spec_method, n, .desc = FALSE)) %>%
         ggplot(aes(x = spec_method, weight = n)) + 
         geom_bar() +
+        geom_label(aes(y = n, label = n)) +
         coord_flip() +
-        labs(x = NULL, y = "Specimen", title = "Specimen collection method") +
-        theme(text = element_text(size = 16))
+        labs(x = NULL, y = "Total Specimens", x = "Collection Method") +
+        theme_minimal(base_size = 16)
     })
     
-    output$specimens_method_loc <- renderPlot({
-      levels_ord <- amr_filt() %>% 
-        group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
-        count(spec_method, sort = TRUE) %>%
-        pull(spec_method)
-      
-      amr_filt() %>% 
-        group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
-        group_by(location, spec_method) %>%
-        summarise(n = n()) %>%
-        ungroup() %>%
-        mutate(spec_method = factor(spec_method, levels = levels_ord)) %>%
-        ggplot(aes(x = spec_method, weight = n, fill = location)) + 
-        geom_bar() +
-        coord_flip() +
-        labs(x = NULL, y = "Specimen", title = "Specimen collection method") +
-        theme(text = element_text(size = 12))
-    })
+    # output$specimens_method_loc <- renderPlot({
+    #   levels_ord <- amr_filt() %>%
+    #     group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
+    #     count(spec_method, sort = TRUE) %>%
+    #     pull(spec_method)
+    # 
+    #   amr_filt() %>%
+    #     group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
+    #     group_by(location, spec_method) %>%
+    #     summarise(n = n()) %>%
+    #     ungroup() %>%
+    #     mutate(spec_method = factor(spec_method, levels = levels_ord)) %>%
+    #     ggplot(aes(x = spec_method, weight = n, fill = location)) +
+    #     geom_bar() +
+    #     coord_flip() +
+    #     labs(x = NULL, y = "Specimen", title = "Specimen collection method") +
+    #     theme_minimal(base_size = 16)
+    # })
     
+    # should we show only the xxx more common organisms?
     output$isolates_organism_high <- renderPlot({
       amr_filt() %>% 
         group_by(org_name) %>% 
@@ -179,7 +200,8 @@ shinyServer(
         geom_label(aes(label = isolates)) +
         coord_flip() +
         labs(x = NULL, y = NULL, title = "Isolates per Organism") +
-        theme(legend.position = "none", text = element_text(size = 15))
+        theme(legend.position = "none", text = element_text(size = 15)) +
+        theme_minimal()
     })
     
     output$isolates_organism_low <- renderPlot({
@@ -194,7 +216,8 @@ shinyServer(
         geom_label(aes(label = isolates)) +
         coord_flip() +
         labs(x = NULL, y = NULL, title = "Isolates per Organism") +
-        theme(legend.position = "none", text = element_text(size = 15))
+        theme(legend.position = "none", text = element_text(size = 15)) +
+        theme_minimal()
     })
     
     output$isolates_spec_method <- renderPlot({
