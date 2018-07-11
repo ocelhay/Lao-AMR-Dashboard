@@ -1,36 +1,131 @@
 shinyServer(
   function(input, output, session) {
     
-    # Initiate reactive values.
-    data_available <- reactiveVal(TRUE)
-    source_data <- reactiveVal("LOMWRU")
-    date_generation <- reactiveVal("2018-07-05")
+    # Initiate reactive values
+    data_available <- reactiveVal(FALSE)
+    amr <- reactiveVal(NULL)
+    source_data <- reactiveVal(NULL)
+    date_generation <- reactiveVal(NULL)
+    
+    # Hide several tabs at the launch of the app
+    observeEvent(NULL, {
+      hideTab(inputId = "tabs", target = "blood_culture")
+      hideTab(inputId = "tabs", target = "specimens")
+      hideTab(inputId = "tabs", target = "organisms")
+      hideTab(inputId = "tabs", target = "amr")
+    }, ignoreNULL = FALSE)
+    
+    # Load .Rdata from input and update reactive values.
+    observeEvent(input$file_RData,{
+      
+      # Escape if there is no data, otherwise load data
+      if (is.null(input$file_RData)) return(NULL)
+      inFile <- input$file_RData
+      file <- inFile$datapath
+      load(file, envir = .GlobalEnv)
+      
+      # Update reactive values
+      data_available(TRUE)
+      amr(data$amr)
+      source_data(data$source_data)
+      date_generation(data$date_generation)
+      
+      # Show Tabs
+      showTab(inputId = "tabs", target = "blood_culture")
+      showTab(inputId = "tabs", target = "specimens")
+      showTab(inputId = "tabs", target = "organisms")
+      showTab(inputId = "tabs", target = "amr")
+      
+      # Update elements for the UI
+      all_provinces <- sort(unique(amr()$province))
+      all_locations <- sort(unique(amr()$location))
+      all_org_name <- sort(unique(amr()$org_name))
+      all_spec_method <- sort(unique(amr()$spec_method))
+      all_spec_year <- unique(amr()$spec_year)
+      oldest_patient <- max(amr()$age_years, na.rm = TRUE)
+      min_collection_date <- min(amr()$spec_date)
+      max_collection_date <- max(amr()$spec_date)
+      
+      updateSliderInput(session = session, "age_patients_selection", max = oldest_patient, value = c(0, oldest_patient))
+      updatePickerInput(session = session, "province_patients_selection", choices = all_provinces, selected = all_provinces)
+      updateCheckboxGroupInput(session = session, "year_selection", choices = all_spec_year, selected = all_spec_year)
+      updateDateRangeInput(session = session, "date_selection", start = min_collection_date, end = max_collection_date)
+      updatePickerInput(session = session, "spec_method_collection", choices = all_locations, selected = all_locations)
+      updatePickerInput(session = session, "spec_method_selection", choices = all_spec_method, selected = all_spec_method)
+      updatePickerInput(session = session, "organism", choices = all_org_name, selected = all_org_name)
+    })
     
     
     # Create a reactive dataframe applying filters to amr
     amr_filt <- reactive({
-      amr %>%
-        filter(
-          age_years >= input$age_patients_selection[1],
-          age_years <= input$age_patients_selection[2],
-          province %in% input$province_patients_selection,
-          spec_year %in% input$year_selection,
-          spec_method %in% input$spec_method_selection,
-          location %in% input$spec_method_collection
+      
+      if(input$date_range_selection == "Filter by Year"){
+        return(
+        amr() %>%
+          filter(
+            age_years >= input$age_patients_selection[1] | is.na(age_years),
+            age_years <= input$age_patients_selection[2] | is.na(age_years),
+            province %in% input$province_patients_selection | is.na(province),
+            spec_year %in% input$year_selection | is.na(spec_year),
+            spec_method %in% input$spec_method_selection | is.na(spec_method),
+            location %in% input$spec_method_collection | is.na(location)
           )
+        )
+      }
+      
+      if(input$date_range_selection == "Filter by Date Range"){
+        return(
+        amr() %>%
+          filter(
+            age_years >= input$age_patients_selection[1] | is.na(age_years),
+            age_years <= input$age_patients_selection[2] | is.na(age_years),
+            province %in% input$province_patients_selection | is.na(province),
+            spec_date >= input$date_selection[1] | is.na(spec_date),
+            spec_date <= input$date_selection[2] | is.na(spec_date),
+            spec_method %in% input$spec_method_selection | is.na(spec_method),
+            location %in% input$spec_method_collection | is.na(location)
+          )
+        )
+      }
     })
+    
+    amr_blood <- reactive({
+      amr() %>%
+        filter(spec_method %in% c("Clotted blood", "EDTA blood", "Haemoculture"))
+    })
+    
     
     # Create a reactive dataframe applying filters to amr_blood
     amr_blood_filt <- reactive({
-      amr_blood %>%
-        filter(
-          age_years >= input$age_patients_selection[1],
-          age_years <= input$age_patients_selection[2],
-          province %in% input$province_patients_selection,
-          spec_year %in% input$year_selection,
-          # spec_method %in% input$spec_method_selection,  # TODO allow to select across the three different blood?
-          location %in% input$spec_method_collection
+      
+      if(input$date_range_selection == "Filter by Year"){
+        return(
+        amr() %>%
+          filter(spec_method %in% c("Clotted blood", "EDTA blood", "Haemoculture")) %>%
+          filter(
+            age_years >= input$age_patients_selection[1] | is.na(age_years),
+            age_years <= input$age_patients_selection[2] | is.na(age_years),
+            province %in% input$province_patients_selection | is.na(province),
+            spec_year %in% input$year_selection | is.na(spec_year),
+            location %in% input$spec_method_collection  | is.na(spec_method)
+          )
         )
+      }
+      
+      if(input$date_range_selection == "Filter by Date Range"){
+        return(
+        amr() %>%
+          filter(spec_method %in% c("Clotted blood", "EDTA blood", "Haemoculture")) %>%
+          filter(
+            age_years >= input$age_patients_selection[1] | is.na(age_years),
+            age_years <= input$age_patients_selection[2] | is.na(age_years),
+            province %in% input$province_patients_selection | is.na(province),
+            spec_date >= input$date_selection[1] | is.na(spec_date),
+            spec_date <= input$date_selection[2] | is.na(spec_date),
+            location %in% input$spec_method_collection  | is.na(spec_method)
+          )
+        )
+      }
     })
     
     
@@ -40,123 +135,46 @@ shinyServer(
     
     # List of information on the status of data
     output$data_status <- renderText({
+      
       ifelse(data_available(),
              paste0(div(class = "info", icon("info-circle", "fa-2x"), strong("Data uploaded"), tags$ul( 
-               tags$li("source: ", source_data()),
-               tags$li("generated on the: ", date_generation()),
-               tags$li("the dataset contains XXX patients and YYY specimens."))
+               tags$li("Dataset source: ", source_data()),
+               tags$li("Dataset generated on the ", date_generation()),
+               tags$li("Dataset contains ", n_distinct(amr()$patient_id), " patients", " and ", n_distinct(amr()$spec_id)," specimens."))
              )),
              paste0(div(class = "alert", icon("exclamation-triangle", "fa-2x"), strong("There is no data to display,"), " please upload a dataset."))
       )
     })
     
-    output$filter_specimens <- renderText({
-      paste0("The dataset filtered contains ",
-             n_distinct(amr_filt()$patient_id), " patients and ",
-             n_distinct(amr_filt()$spec_id), " specimens.")
-    })
-    
-    output$filter_specimens_blood <- renderText({
-      paste0("The dataset filtered to blood cultures contains ",
-             n_distinct(amr_blood_filt()$patient_id), " patients and ",
-             n_distinct(amr_blood_filt()$spec_id), " specimens.")
-    })
-    
-    # Pyramid with selected over total
-    output$filter_visual_ratio <- renderHighchart({
+
+    output$filter_text <- renderText({
+      req(data_available())
       
-      df <- data.frame(name = c("Total Patients", "Patients Displayed", "Total Specimens", "Specimens Displayed"),
-                       y = c(n_distinct(amr$patient_id), n_distinct(amr_filt()$patient_id),
-                             n_distinct(amr$spec_id), n_distinct(amr_filt()$spec_id)),
-                       color = c("#d35400", "#2980b9", "#d35400", "#2980b9"),
-                       segmentColor = c("#000004", "#3B0F70", "#000004", "#3B0F70")
+      n_patients_start <- n_distinct(amr()$patient_id)
+      n_patients_end <- n_distinct(amr_filt()$patient_id)
+      n_specimens_start <- n_distinct(amr()$spec_id)
+      n_specimens_end <- n_distinct(amr_filt()$spec_id)
+      
+      ifelse((n_patients_start == n_patients_end) & (n_specimens_start == n_specimens_end),
+             paste0(div(class = "info", icon("info-circle", "fa-1x"), strong("Dataset has not been filtered"), tags$ul( 
+               tags$li("There are ", n_patients_start, " patients."),
+               tags$li("There are ", n_specimens_start," specimens.")
+             ))),
+             paste0(div(class = "alert", icon("filter", "fa-1x"), strong("Dataset is filtered"), tags$ul(  
+                          tags$li("There are ", n_patients_end, " of the ", n_patients_start, " patients."),
+                          tags$li("There are ", n_specimens_end, " of the ", n_specimens_start, " specimens.")
+                        )
+             ))
       )
-                       
-      
-      highchart() %>%
-        hc_chart(type = "column") %>% 
-        hc_xAxis(categories = df$name) %>% 
-        hc_add_series(df, name = "Patients, Filters", showInLegend = FALSE)
     })
     
     
-    output$province_specimen_blood <- renderPlot({
-      amr_blood_filt() %>% 
-        count(province) %>% mutate(province = fct_reorder(province, n, .desc = FALSE)) %>%
-        ggplot(aes(x = province, weight = n)) + 
-        geom_bar() +
-        geom_label(aes(y = 0.95*n, label = n)) +
-        labs(x = NULL, y = "Total Specimens", title = "per Patient Province", subtitle = "Blood Culture Only") +
-        coord_flip() +
-        theme_minimal(base_size = 15)
-    })
+    source("www/server_tab_blood.R", local = TRUE)
     
-    output$hospital_specimen_blood <- renderPlot({
-      amr_blood_filt() %>% 
-        count(location) %>% mutate(location = fct_reorder(location, n, .desc = FALSE)) %>%
-        ggplot(aes(x = location, weight = n)) + 
-        geom_bar() +
-        geom_label(aes(y = 0.95*n, label = n)) +
-        labs(x = NULL, y = "Total Specimens", title = "per Hospital/Service", subtitle = "Blood Culture Only") +
-        coord_flip() +
-        theme_minimal(base_size = 15)
-    })
-    
-    
-    output$growth_blood <- renderPlot({
-      amr_blood_filt() %>% 
-      group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
-      mutate(growth = ifelse(org_name == "No growth", "No Growth", "Growth")) %>%
-      count(growth) %>%
-      ggplot(aes(x = growth, weight = n, fill = growth)) + 
-      geom_bar() +
-      geom_label(aes(y = n, label = n)) +
-      scale_fill_brewer(palette = "Set2") +
-      labs(x = NULL, y = NULL, title = NULL) +
-      theme_minimal(base_size = 16) +
-      theme(legend.position = "none", 
-            axis.title.y = element_blank(),
-            axis.text.y = element_blank(),
-            axis.ticks.y = element_blank(),
-            axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
-    })
-      
-    
-    
-    output$count_organisms_blood <- renderHighchart({
-      df <- amr_blood_filt() %>%
-        filter(org_name != "No growth", org_name != "unknown") %>%
-        count(org_name) %>% 
-        arrange(desc(n)) %>%
-        head(n = 20)
-      
-      highchart() %>%
-        hc_chart(type = "bar") %>%
-        hc_xAxis(categories = df$org_name) %>% 
-        hc_add_series(data = df$n, name = "Total Organisms", colorByPoint = TRUE)
-    })
-    
-    # output$count_organisms_blood <- renderPlot({
-    #   amr_blood_filt() %>% 
-    #     filter(org_name != "No growth", org_name != "unknown") %>%
-    #     count(org_name) %>% mutate(org_name = fct_reorder(org_name, n, .desc = FALSE)) %>%
-    #     ggplot(aes(x = org_name, weight = n)) + 
-    #     geom_bar() +
-    #     coord_flip() +
-    #     labs(x = NULL, y = "Organisms", title = "Count of Organisms", subtitle = "Blood Culture Only") +
-    #     theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
-    #           text = element_text(size = 16))
-    # })
-    
-    output$table_organisms_blood <- renderDataTable({
-      amr_blood_filt() %>% 
-        filter(org_name != "No growth", org_name != "unknown") %>%
-        count(org_name) %>% mutate(org_name = fct_reorder(org_name, n, .desc = FALSE)) %>%
-        transmute(Organisms = org_name, Count = n) %>%
-        datatable(rownames = FALSE, filter = "none", options = list(pageLength = 100, dom = 'ft'))
-    })
-    
+    # Specimens tab -----------------------------------------------------------
     output$specimens_method <- renderPlot({
+      req(nrow(amr_filt()) > 0)
+      
       amr_filt() %>% 
         group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
         count(spec_method) %>% mutate(spec_method = fct_reorder(spec_method, n, .desc = FALSE)) %>%
@@ -168,163 +186,57 @@ shinyServer(
         theme_minimal(base_size = 16)
     })
     
-    # output$specimens_method_loc <- renderPlot({
-    #   levels_ord <- amr_filt() %>%
-    #     group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
-    #     count(spec_method, sort = TRUE) %>%
-    #     pull(spec_method)
-    # 
-    #   amr_filt() %>%
-    #     group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
-    #     group_by(location, spec_method) %>%
-    #     summarise(n = n()) %>%
-    #     ungroup() %>%
-    #     mutate(spec_method = factor(spec_method, levels = levels_ord)) %>%
-    #     ggplot(aes(x = spec_method, weight = n, fill = location)) +
-    #     geom_bar() +
-    #     coord_flip() +
-    #     labs(x = NULL, y = "Specimen", title = "Specimen collection method") +
-    #     theme_minimal(base_size = 16)
-    # })
     
-    # should we show only the xxx more common organisms?
-    output$isolates_organism_high <- renderPlot({
+    # Organisms tab -----------------------------------------------------------
+    output$isolates_method <- renderPlot({
+      req(nrow(amr_filt()) > 0)
+      
       amr_filt() %>% 
+        count(spec_method) %>% mutate(spec_method = fct_reorder(spec_method, n, .desc = FALSE)) %>%
+        ggplot(aes(x = spec_method, weight = n)) + 
+        geom_bar() +
+        geom_label(aes(y = n, label = n)) +
+        coord_flip() +
+        labs(x = NULL, y = "Total Isolates", x = "Collection Method") +
+        theme_minimal(base_size = 16)
+    })
+    
+    
+    output$isolates_organisms <- renderHighchart({
+      req(nrow(amr_filt()) > 0)
+      
+      df <- amr_filt() %>%
+        filter(org_name != "No growth", org_name != "~~ Unknown ~~") %>%
         group_by(org_name) %>% 
-        summarise(isolates = n()) %>%
-        filter(isolates > 9) %>%
-        arrange(isolates) %>%
-        mutate(org_name = factor(org_name, levels = org_name)) %>%
-        ggplot(aes(x = org_name, y = isolates, fill = org_name)) +
-        geom_bar(stat = "identity") +
-        geom_label(aes(label = isolates)) +
-        coord_flip() +
-        labs(x = NULL, y = NULL, title = "Isolates per Organism") +
-        theme(legend.position = "none", text = element_text(size = 15)) +
-        theme_minimal()
+        count() %>%
+        arrange(desc(n)) %>%
+        head(n = 25)
+      
+      highchart() %>%
+        hc_chart(type = "bar") %>%
+        hc_xAxis(categories = df$org_name) %>% 
+        hc_add_series(data = df$n, name = "Total Isolates", colorByPoint = TRUE)
     })
     
-    output$isolates_organism_low <- renderPlot({
-      amr_filt() %>% 
+    output$table_isolates_organisms <- renderDT({
+      req(nrow(amr_filt()) > 0)
+      
+      df <- amr_filt() %>%
+        filter(org_name != "No growth", org_name != "~~ Unknown ~~") %>%
         group_by(org_name) %>% 
-        summarise(isolates = n()) %>%
-        filter(isolates < 10) %>%
-        arrange(isolates) %>%
-        mutate(org_name = factor(org_name, levels = org_name)) %>%
-        ggplot(aes(x = org_name, y = isolates, fill = org_name)) +
-        geom_bar(stat = "identity") +
-        geom_label(aes(label = isolates)) +
-        coord_flip() +
-        labs(x = NULL, y = NULL, title = "Isolates per Organism") +
-        theme(legend.position = "none", text = element_text(size = 15)) +
-        theme_minimal()
+        count() %>%
+        arrange(desc(n)) %>%
+        dplyr::rename(Organisms = org_name, Count = n) %>%
+        datatable(rownames = FALSE, filter = "none", options = list(pageLength = 100, dom = 'ft'))
     })
     
-    output$isolates_spec_method <- renderPlot({
-      amr_filt() %>% 
-        group_by(spec_method) %>% 
-        summarise(isolates = n()) %>%
-        arrange(isolates) %>%
-        mutate(spec_method = factor(spec_method, levels = spec_method)) %>%
-        ggplot(aes(x = spec_method, y = isolates, fill = spec_method)) +
-        geom_bar(stat = "identity") +
-        geom_label(aes(label = isolates)) +
-        coord_flip() +
-        labs(x = NULL, y = NULL, title = "Isolates per Specimen Method") +
-        theme(legend.position = "none", text = element_text(size = 15))
-    })
+    # AMR Tab -----------------------------------------------------------------
     
-    output$organism_isolates_ab <- renderText({
-      organism <- "Acinetobacter baumanii"
-      
-      n <- amr_filt() %>% 
-        filter(org_name == organism) %>% 
-        pull(spec_id) %>%
-        n_distinct()
-      
-      paste0("There are a total of ", n, " isolates for ", organism)
-      # this includes the row for which antibiotic_name is NA
-    })
-    
-    output$organism_sir_plot_ab <- renderPlot({
-      
-      organism <- "Acinetobacter baumanii"
-      
-      total_tested <- amr_filt() %>% 
-        filter(org_name == organism, !is.na(antibiotic_name)) %>% 
-        count(antibiotic_name) %>%
-        rename(total = n)
-      
-      sir_results <- amr_filt() %>% 
-        filter(org_name == organism, !is.na(antibiotic_name)) %>% 
-        count(antibiotic_name, resistance) %>%
-        left_join(total_tested, by = "antibiotic_name") %>%
-        mutate(percent = n / total,
-               label = paste0(antibiotic_name, " \n (", total, " tested)"),
-               resistance = factor(resistance, levels = c("S", "I", "R")))
-      
-      ggplot(sir_results, 
-             aes(x = label, y = percent, fill = resistance)) +
-        geom_bar(stat = "identity", color = "gray10", width = 0.06*length(unique(sir_results$antibiotic_name))) +
-        labs(x = NULL, y = "Percent", fill = "Status") +
-        scale_fill_manual(values = cols_SIR) +
-        theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
-              panel.grid.major.x = element_blank(),
-              axis.text.x = element_text(angle = 30, hjust = 0.5, vjust = 1),
-              legend.position = "top", text = element_text(size = 16)) +
-        scale_x_discrete() +
-        scale_y_continuous(labels = scales::percent)
-    })
-    
-    output$organism_sir_table_ab <- renderDT({
-      organism <- "Acinetobacter baumanii"
-      
-      total_tested <- amr_filt() %>% 
-        filter(org_name == organism, !is.na(antibiotic_name)) %>% 
-        count(antibiotic_name) %>%
-        rename(total = n)
-      
-      sir_results <- amr_filt() %>% 
-        filter(org_name == organism, !is.na(antibiotic_name)) %>% 
-        count(antibiotic_name, resistance) %>%
-        left_join(total_tested, by = "antibiotic_name") %>%
-        mutate(percent = n / total,
-               label = paste0(antibiotic_name, " \n (", total, " tested)"),
-               resistance = factor(resistance, levels = c("S", "I", "R")))
-      
-      left_join(sir_results %>%
-                  select(antibiotic_name, resistance, percent) %>%
-                  spread(resistance, percent, fill = 0, drop = FALSE) %>%
-                  rename(`Pct. S` = S, `Pct. I` = I, `Pct. R` = R),
-                sir_results %>%
-                  select(antibiotic_name, resistance, total) %>%
-                  spread(resistance, total, fill = 0, drop = FALSE),
-                by = "antibiotic_name") %>%
-        select(`Antibiotic` = antibiotic_name, S, `Pct. S`, I, `Pct. I`, R, `Pct. R`) %>%
-        datatable(rownames = FALSE, filter = "none") %>%
-        formatPercentage("Pct. S", 2) %>%
-        formatPercentage("Pct. I", 2) %>%
-        formatPercentage("Pct. R", 2) %>%
-        formatStyle("Pct. S", background = styleColorBar(data = c(0, 1), cols_SIR[1])) %>%
-        formatStyle("Pct. I", background = styleColorBar(data = c(0, 1), cols_SIR[2])) %>%
-        formatStyle("Pct. R", background = styleColorBar(data = c(0, 1), cols_SIR[3]))
-    })
-    
-    output$organism_isolates_year_ab <- renderPlot({
-      organism <- "Acinetobacter baumanii"
-      
-      # should we include the one not tested?
-      amr_filt() %>% 
-        filter(org_name == organism) %>% 
-        group_by(spec_year) %>%
-        summarise(n = n_distinct(spec_id)) %>%
-        ggplot(aes(x= spec_year, y = n, label = n)) +
-        geom_line(aes(group = 1)) +
-        geom_label(alpha = 1, fill = "grey") +
-        theme_minimal(base_size = 16) +
-        theme(axis.text.y = element_blank()) +
-        scale_y_continuous(limits = c(0, NA)) +
-        labs(x = NULL, y = NULL, title = "Total Isolates per Year")
-    })
+    source("www/server_amr_ab.R", local = TRUE)
+    source("www/server_amr_ec.R", local = TRUE)
+    source("www/server_amr_kp.R", local = TRUE)
+    source("www/server_amr_sa.R", local = TRUE)
+    source("www/server_amr_sp.R", local = TRUE)
+    source("www/server_amr_any.R", local = TRUE)
   }
 )

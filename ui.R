@@ -5,9 +5,7 @@ fluidPage(
   sidebarPanel(width = 3,
                h2("LOMWRU"),
                h3("AMR Dashboard"),
-               div(class = "imgsolidborder4",
-                   img(src = "ecoli.jpg")
-               ),
+               div(class = "imgsolidborder4", img(src = "ecoli.jpg")),
                br(),
                
                conditionalPanel(condition = "input.tabs != 'about'",
@@ -30,11 +28,8 @@ fluidPage(
                                                        column(width = 4, p("Patients Province of Residence:")),
                                                        column(width = 8, pickerInput(inputId = "province_patients_selection", label = NULL, multiple = TRUE,
                                                                                      choices = all_provinces, selected = all_provinces, options = list(
-                                                                                       `actions-box` = TRUE,
-                                                                                       `deselect-all-text` = "None...",
-                                                                                       `select-all-text` = "Select All",
-                                                                                       `none-selected-text` = "zero"
-                                                                                     )
+                                                                                       `actions-box` = TRUE, `deselect-all-text` = "None...",
+                                                                                       `select-all-text` = "Select All", `none-selected-text` = "None Selected")
                                                        ))
                                                      ),
                                                      hr(),
@@ -45,6 +40,7 @@ fluidPage(
                                                                                checkboxGroupInput("year_selection", label = NULL, choices = all_spec_year, selected = all_spec_year, inline = TRUE)
                                                               ),
                                                               conditionalPanel("input.date_range_selection == 'Filter by Date Range'",
+                                                                               br(), br(),
                                                                                dateRangeInput("date_selection", label = NULL)
                                                               ))
                                                      ),
@@ -52,13 +48,10 @@ fluidPage(
                                                        column(width = 4, p("Specimens Collection Location:")),
                                                        column(width = 8, pickerInput(inputId = "spec_method_collection", label = NULL, multiple = TRUE,
                                                                                      choices = all_locations, selected = all_locations, options = list(
-                                                                                       `actions-box` = TRUE,
-                                                                                       `deselect-all-text` = "None...",
-                                                                                       `select-all-text` = "Select All",
-                                                                                       `none-selected-text` = "zero"
-                                                                                     )
+                                                                                       `actions-box` = TRUE, `deselect-all-text` = "None...",
+                                                                                       `select-all-text` = "Select All", `none-selected-text` = "None Selected")
+                                                       )
                                                        ))
-                                                     )
                                     ),
                                     conditionalPanel(condition = "input.tabs == 'blood_culture'",
                                                      fluidRow(
@@ -71,21 +64,17 @@ fluidPage(
                                                        column(width = 4, p("Specimens Collection Method:")),
                                                        column(width = 8, pickerInput(inputId = "spec_method_selection", label = NULL, multiple = TRUE,
                                                                                      choices = all_spec_method, selected = all_spec_method, options = list(
-                                                                                       `actions-box` = TRUE,
-                                                                                       `deselect-all-text` = "None...",
-                                                                                       `select-all-text` = "Select All",
-                                                                                       `none-selected-text` = "zero"
-                                                                                     )
+                                                                                       `actions-box` = TRUE, `deselect-all-text` = "None...",
+                                                                                       `select-all-text` = "Select All", `none-selected-text` = "None Selected")
                                                        ))
                                                      )
                                     ),
                                     
                                     conditionalPanel(condition = "input.tabs == 'specimens' | input.tabs == 'organisms' | input.tabs == 'amr'",
-                                                     textOutput("filter_specimens"),
-                                                     highchartOutput("filter_visual_ratio")
+                                                     htmlOutput("filter_text")
                                     ),
                                     conditionalPanel(condition = "input.tabs == 'blood_culture'",
-                                                     textOutput("filter_specimens_blood")
+                                                     htmlOutput("filter_text_blood")
                                     )
                                 )
                )
@@ -122,7 +111,7 @@ fluidPage(
                                 h2("Total Organisms"),
                                 fluidRow(
                                   column(width = 8,
-                                         p("The graph below displays only the 20 more commons organisms, report to table for the complete listing."),
+                                         p("The graph below displays the 25 more commons organisms, report to the table for the complete listing."),
                                          highchartOutput("count_organisms_blood", height = "900px") %>% withSpinner()
                                          # plotOutput("count_organisms_blood", height = "800px") %>% withSpinner(),
                                   ),
@@ -139,77 +128,97 @@ fluidPage(
                                 plotOutput("specimens_method", height = "600px") %>% withSpinner()
                        ),
                        tabPanel("Organisms", value = "organisms",
-                                tabsetPanel(
-                                  tabPanel("Organisms Plot", value = "organisms_plot",
-                                           p("placeholder-dropdown with selection of organism groups"),
-                                           
-                                           plotOutput("isolates_organism_high") %>% withSpinner(),
-                                           
-                                           plotOutput("isolates_organism_low") %>% withSpinner(),
-                                           
-                                           p("placeholder-barplot with nb of isolates per organism")
-                                  ),
-                                  tabPanel("Species Summary", value = "species_summary",
-                                           p("placeholder-dropdown with selection ofspecies"),
-                                           p("placeholder-barplot with isolates per age group"),
-                                           p("placeholder-barplot with specimen counts per specimen group"),
-                                           plotOutput("isolates_spec_method") %>% withSpinner()
-                                  )
+                                h2("Total Isolates per Method of Collection"),
+                                plotOutput("isolates_method", height = "600px") %>% withSpinner(),
+                                h2("Total Isolates per Organism"),
+                                fluidRow(
+                                  column(width = 8, 
+                                         p("The graph below displays the 25 organisms with the more isolates, report to the table for the complete listing."),
+                                         highchartOutput("isolates_organisms", height = "900px") %>% withSpinner()),
+                                  column(width = 4, dataTableOutput("table_isolates_organisms") %>% withSpinner())
                                 )
                        ),
                        tabPanel("AMR", value = "amr", icon = icon("bug"),
                                 tabsetPanel(
                                   tabPanel("A. baumannii",
-                                           textOutput("organism_isolates_ab") %>% withSpinner(),
-                                           
+                                           br(),
+                                           fluidRow(
+                                             column(width = 6,
+                                                    htmlOutput("organism_isolates_ab") %>% withSpinner()),
+                                             column(width = 6,
+                                                    plotOutput("organism_isolates_year_ab", height = "250px") %>% withSpinner()
+                                             )
+                                           ),
                                            plotOutput("organism_sir_plot_ab") %>% withSpinner(),
+                                           DTOutput("organism_sir_table_ab") %>% withSpinner()
                                            
-                                           DTOutput("organism_sir_table_ab") %>% withSpinner(),
                                            
-                                           plotOutput("organism_isolates_year_ab") %>% withSpinner(),
-                                           
-                                           p("placeholder-text with total number of isolates"),
-                                           p("placeholder-barplot with SIR per antibiotic"),
-                                           p("placeholder-tale with SIR per antibiotic"),
-                                           p("placeholder-plot with total isolates per year"),
-                                           p("placeholder-plot with evolution of SIR per year")
                                   ),
                                   tabPanel("E. coli",
-                                           p("placeholder-text with total number of isolates"),
-                                           p("placeholder-barplot with SIR per antibiotic"),
-                                           p("placeholder-tale with SIR per antibiotic"),
-                                           p("placeholder-plot with total isolates per year"),
-                                           p("placeholder-plot with evolution of SIR per year"),
-                                           p("placeholder ****NEW****—add the ratio (ESBL positive for Escherichia coli)/(Patients with Escherichia coli) for the bugs with ESBL results.")
+                                           br(),
+                                           fluidRow(
+                                             column(width = 6,
+                                                    htmlOutput("organism_isolates_ec") %>% withSpinner()),
+                                             column(width = 6,
+                                                    plotOutput("organism_isolates_year_ec", height = "250px") %>% withSpinner()
+                                             )
+                                           ),
+                                           plotOutput("organism_sir_plot_ec") %>% withSpinner(),
+                                           DTOutput("organism_sir_table_ec") %>% withSpinner(),
+                                           h2("(ESBL positive for Escherichia coli)/(Patients with Escherichia coli) for the bugs with ESBL results."),
+                                           DTOutput("esbl") %>% withSpinner()
                                   ),
                                   tabPanel("K. pneumoniae",
-                                           p("placeholder-text with total number of isolates"),
-                                           p("placeholder-barplot with SIR per antibiotic"),
-                                           p("placeholder-tale with SIR per antibiotic"),
-                                           p("placeholder-plot with total isolates per year"),
-                                           p("placeholder-plot with evolution of SIR per year")
+                                           br(),
+                                           fluidRow(
+                                             column(width = 6,
+                                                    htmlOutput("organism_isolates_kp") %>% withSpinner()),
+                                             column(width = 6,
+                                                    plotOutput("organism_isolates_year_kp", height = "250px") %>% withSpinner()
+                                             )
+                                           ),
+                                           plotOutput("organism_sir_plot_kp") %>% withSpinner(),
+                                           DTOutput("organism_sir_table_kp") %>% withSpinner()
                                   ),
                                   tabPanel("S. aureus",
-                                           p("placeholder-text with total number of isolates"),
-                                           p("placeholder-barplot with SIR per antibiotic"),
-                                           p("placeholder-tale with SIR per antibiotic"),
-                                           p("placeholder-plot with total isolates per year"),
-                                           p("placeholder-plot with evolution of SIR per year")
+                                           br(),
+                                           fluidRow(
+                                             column(width = 6,
+                                                    htmlOutput("organism_isolates_sa") %>% withSpinner()),
+                                             column(width = 6,
+                                                    plotOutput("organism_isolates_year_sa", height = "250px") %>% withSpinner()
+                                             )
+                                           ),
+                                           plotOutput("organism_sir_plot_sa") %>% withSpinner(),
+                                           DTOutput("organism_sir_table_sa") %>% withSpinner()
                                   ),
                                   tabPanel("S. pneumoniae",
-                                           p("placeholder-text with total number of isolates"),
-                                           p("placeholder-barplot with SIR per antibiotic"),
-                                           p("placeholder-tale with SIR per antibiotic"),
-                                           p("placeholder-plot with total isolates per year"),
-                                           p("placeholder-plot with evolution of SIR per year")
+                                           br(),
+                                           fluidRow(
+                                             column(width = 6,
+                                                    htmlOutput("organism_isolates_sp") %>% withSpinner()),
+                                             column(width = 6,
+                                                    plotOutput("organism_isolates_year_sp", height = "250px") %>% withSpinner()
+                                             )
+                                           ),
+                                           plotOutput("organism_sir_plot_sp") %>% withSpinner(),
+                                           DTOutput("organism_sir_table_sp") %>% withSpinner()
                                   ),
                                   tabPanel("Any Organism",
-                                           p("placeholder-selection of a species"),
-                                           p("placeholder-text with total number of isolates"),
-                                           p("placeholder-barplot with SIR per antibiotic"),
-                                           p("placeholder-tale with SIR per antibiotic"),
-                                           p("placeholder-plot with total isolates per year"),
-                                           p("placeholder-plot with evolution of SIR per year")
+                                           br(),
+                                           pickerInput(inputId = "organism", label = NULL, multiple = FALSE,
+                                                       choices = all_org_name, selected = all_org_name
+                                           ),
+                                           br(),
+                                           fluidRow(
+                                             column(width = 6,
+                                                    htmlOutput("organism_isolates_any") %>% withSpinner()),
+                                             column(width = 6,
+                                                    plotOutput("organism_isolates_year_any", height = "250px") %>% withSpinner()
+                                             )
+                                           ),
+                                           plotOutput("organism_sir_plot_any") %>% withSpinner(),
+                                           DTOutput("organism_sir_table_any") %>% withSpinner()
                                   )
                                 )
                        ),
