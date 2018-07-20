@@ -1,8 +1,9 @@
-# "Acinetobacter baumanii" ------------------------------------------------
+# Salmonella Typhi ----------------------------------------------------------------------------------------------------------
 
-output$organism_isolates_ab <- renderText({
+
+output$organism_isolates_st <- renderText({
   req(data_available())
-  organism <- "Acinetobacter baumanii"
+  organism <- "Salmonella Typhi"
   
   df <- amr_filt() %>% 
     filter(org_name == organism) 
@@ -13,10 +14,9 @@ output$organism_isolates_ab <- renderText({
 
 # SIR Status ----------------------------------------------------------------------------------------------------------------
 
-output$organism_sir_ab <- renderHighchart({
+output$organism_sir_st <- renderHighchart({
   req(data_available())
-  
-  organism <- "Acinetobacter baumanii"
+  organism <- "Salmonella Typhi"
   
   total_tested <- amr_filt() %>% 
     filter(org_name == organism, !is.na(antibiotic_name)) %>% 
@@ -36,12 +36,11 @@ output$organism_sir_ab <- renderHighchart({
     mutate(resistance = factor(resistance, levels = c("Susceptible", "Intermediate", "Resistant", "Unknown"))) %>%
     complete(resistance, nesting(antibiotic_name))
   
-  return(
-    hchart(sir_results, type = "bar", hcaes(x = "antibiotic_name", y = "percent", group = "resistance")) %>%
-      hc_yAxis(title = "", max = 100) %>% hc_xAxis(title = "") %>%
-      hc_colors(cols_sir) %>%
-      hc_tooltip(headerFormat = "",
-                 pointFormat = "<b>{point.antibiotic_name}</b><br> {point.resistance}: {point.percent}% <br>({point.n} of {point.total_org} tested.)") %>%
-      hc_plotOptions(series = list(stacking = 'normal'))
-  )
+  
+  hchart(sir_results, type = "bar", hcaes(x = "antibiotic_name", y = "percent", group = "resistance")) %>%
+    hc_yAxis(title = "", max = 100) %>% hc_xAxis(title = "") %>%
+    hc_colors(cols_sir) %>%
+    hc_tooltip(headerFormat = "",
+               pointFormat = "<b>{point.antibiotic_name}</b><br> {point.resistance}: {point.percent}% <br>({point.n} of {point.total_org} tested.)") %>%
+    hc_plotOptions(series = list(stacking = 'normal'))
 })

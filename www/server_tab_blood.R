@@ -57,7 +57,6 @@ output$growth_blood <- renderPlot({
     ggplot(aes(x = growth, weight = n, group = growth)) + 
     geom_bar() +
     geom_label(aes(y = n, label = n)) +
-    # scale_fill_brewer(palette = "Set2") +
     labs(x = NULL, y = NULL, title = NULL) +
     theme_minimal(base_size = 16) +
     theme(legend.position = "none", 
@@ -73,7 +72,7 @@ output$count_organisms_blood <- renderHighchart({
   req(nrow(amr_blood_filt()) > 0)
   
   df <- amr_blood_filt() %>%
-    filter(org_name != "No growth", org_name != "~~ Unknown ~~") %>%
+    filter(org_name != "No growth") %>%
     count(org_name) %>% 
     arrange(desc(n)) %>%
     head(n = 25)
@@ -88,7 +87,7 @@ output$table_organisms_blood <- renderDataTable({
   req(nrow(amr_blood_filt()) > 0)
   
   amr_blood_filt() %>% 
-    filter(org_name != "No growth", org_name != "~~ Unknown ~~") %>%
+    filter(org_name != "No growth") %>%
     count(org_name) %>% mutate(org_name = fct_reorder(org_name, n, .desc = FALSE)) %>%
     transmute(Organisms = org_name, Count = n) %>%
     datatable(rownames = FALSE, filter = "none", options = list(pageLength = 100, dom = 'ft'))

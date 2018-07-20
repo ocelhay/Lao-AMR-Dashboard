@@ -1,3 +1,4 @@
+# Load packages
 library(DT)
 library(highcharter)
 library(lubridate)
@@ -5,12 +6,13 @@ library(shinycssloaders)
 library(shinythemes)
 library(shinyWidgets)
 library(tidyverse)
+library(viridisLite)
 
-cols_SIR <- c("S" = "#2166ac", "I" = "#fddbc7", "R" = "#b2182b", "Not Tested" = "light grey")
+rm(list = ls())
 
-all_provinces <- ""
-all_locations <- ""
-all_org_name <- ""
-all_spec_method <- ""
-all_spec_year <- 999
-oldest_patient <- 999
+# Colors order: S, I, R, Not Tested
+cols_sir <- c("#2166ac", "#fddbc7", "#b2182b", "#969696")
+
+# Colors order: Negative, Positive, Unknown
+# taken from http://colorbrewer2.org/#type=diverging&scheme=RdBu&n=3
+cols_esbl <- c("#d7191c", "#1a9641", "#969696")

@@ -10,6 +10,7 @@ shinyServer(
     # Hide several tabs at the launch of the app
     observeEvent(NULL, {
       hideTab(inputId = "tabs", target = "blood_culture")
+      hideTab(inputId = "tabs", target = "patients")
       hideTab(inputId = "tabs", target = "specimens")
       hideTab(inputId = "tabs", target = "organisms")
       hideTab(inputId = "tabs", target = "amr")
@@ -32,6 +33,7 @@ shinyServer(
       
       # Show Tabs
       showTab(inputId = "tabs", target = "blood_culture")
+      showTab(inputId = "tabs", target = "patients")
       showTab(inputId = "tabs", target = "specimens")
       showTab(inputId = "tabs", target = "organisms")
       showTab(inputId = "tabs", target = "amr")
@@ -91,7 +93,7 @@ shinyServer(
     
     amr_blood <- reactive({
       amr() %>%
-        filter(spec_method %in% c("Clotted blood", "EDTA blood", "Haemoculture"))
+        filter(spec_method == "Haemoculture")
     })
     
     
@@ -171,7 +173,27 @@ shinyServer(
     
     source("www/server_tab_blood.R", local = TRUE)
     
-    # Specimens tab -----------------------------------------------------------
+    
+
+# Patient Tab ---------------------------------------------------------------------------------------------------------------
+
+    output$patients_nb <- renderPlot({
+        req(nrow(amr_filt()) > 0)
+        
+        amr_filt() %>% 
+          group_by(location) %>% summarise(count = n_distinct(patient_id)) %>% ungroup() %>%
+          mutate(location = fct_reorder(location, count, .desc = FALSE)) %>%
+          ggplot(aes(x = location, weight = count)) + 
+          geom_bar() +
+          geom_label(aes(y = count, label = count)) +
+          coord_flip() +
+          labs(x = NULL, y = "Total Patients", x = "Collection Place") +
+          theme_minimal(base_size = 16)
+      })
+    
+
+# Specimens Tab -------------------------------------------------------------------------------------------------------------
+
     output$specimens_method <- renderPlot({
       req(nrow(amr_filt()) > 0)
       
@@ -206,7 +228,6 @@ shinyServer(
       req(nrow(amr_filt()) > 0)
       
       df <- amr_filt() %>%
-        filter(org_name != "No growth", org_name != "~~ Unknown ~~") %>%
         group_by(org_name) %>% 
         count() %>%
         arrange(desc(n)) %>%
@@ -222,7 +243,6 @@ shinyServer(
       req(nrow(amr_filt()) > 0)
       
       df <- amr_filt() %>%
-        filter(org_name != "No growth", org_name != "~~ Unknown ~~") %>%
         group_by(org_name) %>% 
         count() %>%
         arrange(desc(n)) %>%
@@ -237,6 +257,8 @@ shinyServer(
     source("www/server_amr_kp.R", local = TRUE)
     source("www/server_amr_sa.R", local = TRUE)
     source("www/server_amr_sp.R", local = TRUE)
+    source("www/server_amr_st.R", local = TRUE)
+    source("www/server_amr_ng.R", local = TRUE)
     source("www/server_amr_any.R", local = TRUE)
   }
 )

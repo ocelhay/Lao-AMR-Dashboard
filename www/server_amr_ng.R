@@ -1,8 +1,9 @@
-# "Acinetobacter baumanii" ------------------------------------------------
 
-output$organism_isolates_ab <- renderText({
+# Neisseria gonorrhoeae -----------------------------------------------------------------------------------------------------
+
+output$organism_isolates_ng <- renderText({
   req(data_available())
-  organism <- "Acinetobacter baumanii"
+  organism <- "Neisseria gonorrhoeae"
   
   df <- amr_filt() %>% 
     filter(org_name == organism) 
@@ -13,10 +14,10 @@ output$organism_isolates_ab <- renderText({
 
 # SIR Status ----------------------------------------------------------------------------------------------------------------
 
-output$organism_sir_ab <- renderHighchart({
+output$organism_sir_ng <- renderHighchart({
   req(data_available())
   
-  organism <- "Acinetobacter baumanii"
+  organism <- "Neisseria gonorrhoeae"
   
   total_tested <- amr_filt() %>% 
     filter(org_name == organism, !is.na(antibiotic_name)) %>% 

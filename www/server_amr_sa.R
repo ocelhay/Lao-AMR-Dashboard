@@ -2,19 +2,18 @@
 
 output$organism_isolates_sa <- renderText({
   req(data_available())
-  
   organism <- "Staphylococcus aureus"
   
-  n <- amr_filt() %>% 
-    filter(org_name == organism) %>% 
-    pull(spec_id) %>%
-    n_distinct()
+  df <- amr_filt() %>% 
+    filter(org_name == organism) 
   
-  paste(h4(paste0("There are a total of ", n, " isolates for ", organism)))
-  # this includes the row for which antibiotic_name is NA
+  paste(h5(paste0("There are a total of ", n_distinct(df$spec_id), " distinct specimens from ", n_distinct(df$patient_id), " patients", " for ", organism, ".")))
 })
 
-output$organism_sir_plot_sa <- renderPlot({
+
+# SIR Status ----------------------------------------------------------------------------------------------------------------
+
+output$organism_sir_sa <- renderHighchart({
   req(data_available())
   
   organism <- "Staphylococcus aureus"
@@ -22,85 +21,68 @@ output$organism_sir_plot_sa <- renderPlot({
   total_tested <- amr_filt() %>% 
     filter(org_name == organism, !is.na(antibiotic_name)) %>% 
     count(antibiotic_name) %>%
-    dplyr::rename(total = n)
+    rename(total_org = n)
   
   sir_results <- amr_filt() %>% 
     filter(org_name == organism, !is.na(antibiotic_name)) %>% 
     count(antibiotic_name, resistance) %>%
     left_join(total_tested, by = "antibiotic_name") %>%
-    mutate(percent = n / total,
-           label = paste0(antibiotic_name, " \n (", total, " tested)"),
-           resistance = factor(resistance, levels = c("S", "I", "R")))
+    mutate(percent = round(100*n / total_org, 1),
+           resistance = case_when(
+             resistance == "S" ~ "Susceptible",
+             resistance == "I" ~ "Intermediate",
+             resistance == "R" ~ "Resistant",
+             TRUE ~ "Unknown")) %>%
+    mutate(resistance = factor(resistance, levels = c("Susceptible", "Intermediate", "Resistant", "Unknown"))) %>%
+    complete(resistance, nesting(antibiotic_name))
   
-  ggplot(sir_results, 
-         aes(x = label, y = percent, fill = resistance)) +
-    geom_bar(stat = "identity", color = "gray10", width = 0.06*length(unique(sir_results$antibiotic_name))) +
-    labs(x = NULL, y = "Percent", fill = "Status") +
-    scale_fill_manual(values = cols_SIR) +
-    theme(panel.spacing = unit(2, "lines"), panel.grid.minor = element_blank(),
-          panel.grid.major.x = element_blank(),
-          axis.text.x = element_text(angle = 30, hjust = 0.5, vjust = 1),
-          legend.position = "top", text = element_text(size = 17)) +
-    scale_x_discrete() +
-    scale_y_continuous(labels = scales::percent)
+  return(
+    hchart(sir_results, type = "bar", hcaes(x = "antibiotic_name", y = "percent", group = "resistance")) %>%
+      hc_yAxis(title = "", max = 100) %>% hc_xAxis(title = "") %>%
+      hc_colors(cols_sir) %>%
+      hc_tooltip(headerFormat = "",
+                 pointFormat = "<b>{point.antibiotic_name}</b><br> {point.resistance}: {point.percent}% <br>({point.n} of {point.total_org} tested.)") %>%
+      hc_plotOptions(series = list(stacking = 'normal'))
+  )
 })
 
-output$organism_sir_table_sa <- renderDT({
+
+# Cefoxitin MRSA ------------------------------------------------------------------------------------------------------------
+
+output$organism_mrsa_sa <- renderHighchart({
   req(data_available())
   
   organism <- "Staphylococcus aureus"
+  antibiotic <- "Cefoxitin"
   
   total_tested <- amr_filt() %>% 
-    filter(org_name == organism, !is.na(antibiotic_name)) %>% 
-    count(antibiotic_name) %>%
-    dplyr::rename(total = n)
+    filter(org_name == organism, antibiotic_name == antibiotic) %>% 
+    mutate(spec_quarter = round_date(spec_date, "3 months")) %>%
+    group_by(spec_quarter) %>%
+    count() %>%
+    rename(total2 = n)
   
-  sir_results <- amr_filt() %>% 
-    filter(org_name == organism, !is.na(antibiotic_name)) %>% 
-    count(antibiotic_name, resistance) %>%
-    left_join(total_tested, by = "antibiotic_name") %>%
-    mutate(percent = n / total,
-           label = paste0(antibiotic_name, " \n (", total, " tested)"),
-           resistance = factor(resistance, levels = c("S", "I", "R")))
+  mrsa_results <- amr_filt() %>% 
+    filter(org_name == organism, antibiotic_name == antibiotic) %>% 
+    mutate(spec_quarter = round_date(spec_date, "3 months")) %>%
+    count(spec_quarter, resistance) %>%
+    left_join(total_tested, by = "spec_quarter") %>%
+    mutate(percent = round(100*n / total2, 1),
+           resistance = case_when(
+             resistance == "S" ~ "Susceptible",
+             resistance == "I" ~ "Intermediate",
+             resistance == "R" ~ "Resistant",
+             TRUE ~ "Unknown")) %>%
+    mutate(resistance = factor(resistance, levels = c("Susceptible", "Intermediate", "Resistant", "Unknown"))) %>%
+    complete(resistance, nesting(spec_quarter)) %>%
+    mutate(spec_quarter = as.character(quarter(spec_quarter, with_year = TRUE)))
   
-  left_join(sir_results %>%
-              select(antibiotic_name, resistance, percent) %>%
-              spread(resistance, percent, fill = 0, drop = FALSE) %>%
-              dplyr::rename(`Pct. S` = S, `Pct. I` = I, `Pct. R` = R),
-            sir_results %>%
-              select(antibiotic_name, resistance, n) %>%
-              spread(resistance, n, fill = 0, drop = FALSE),
-            by = "antibiotic_name") %>%
-    select(`Antibiotic` = antibiotic_name, S, `Pct. S`, I, `Pct. I`, R, `Pct. R`) %>%
-    datatable(rownames = FALSE, filter = "none") %>%
-    formatPercentage("Pct. S", 2) %>%
-    formatPercentage("Pct. I", 2) %>%
-    formatPercentage("Pct. R", 2) %>%
-    formatStyle("Pct. S", background = styleColorBar(data = c(0, 1), cols_SIR[1])) %>%
-    formatStyle("Pct. I", background = styleColorBar(data = c(0, 1), cols_SIR[2])) %>%
-    formatStyle("Pct. R", background = styleColorBar(data = c(0, 1), cols_SIR[3]))
-})
-
-output$organism_isolates_year_sa <- renderPlot({
-  req(data_available())
-  
-  organism <- "Staphylococcus aureus"
-  
-  amr_filt() %>% 
-    filter(org_name == organism) %>% 
-    group_by(spec_year) %>%
-    summarise(n = n_distinct(spec_id)) %>%
-    mutate(spec_year = as.character(spec_year)) %>%
-    ggplot(aes(x = spec_year, weight = n, group = spec_year)) + 
-    geom_bar(width = 0.2) +
-    geom_label(aes(y = n, label = n)) +
-    # scale_fill_brewer(palette = "Set2") +
-    labs(x = NULL, y = NULL, title = NULL) +
-    theme_minimal(base_size = 18) +
-    theme(legend.position = "none", 
-          axis.title.y = element_blank(),
-          axis.text.y = element_blank(),
-          axis.ticks.y = element_blank(),
-          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
-  
+  return(
+    hchart(mrsa_results, type = "column", hcaes(x = "spec_quarter", y = "percent", group = "resistance")) %>%
+      hc_yAxis(title = "", max = 100) %>% hc_xAxis(title = "") %>%
+      hc_colors(cols_sir) %>%
+      hc_tooltip(headerFormat = "",
+                 pointFormat = "<b>{point.spec_quarter}</b><br> {point.resistance}: {point.percent}% <br>({point.n} of {point.total2} tested.)") %>%
+      hc_plotOptions(series = list(stacking = 'normal'))
+  )
 })
