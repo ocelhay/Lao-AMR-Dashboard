@@ -70,6 +70,7 @@ output$esbl_kp <- renderHighchart({
     ungroup() %>%
     left_join(total_tested, by = "antibiotic_name") %>%
     mutate(percent = round(100*n / total_org, 1)) %>%
+    mutate(esbl = factor(esbl, levels = c("Negative", "Positive", "Unknown"))) %>%
     complete(esbl, nesting(antibiotic_name), fill = list(n = 0))
   
   

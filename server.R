@@ -214,6 +214,7 @@ shinyServer(
       req(nrow(amr_filt()) > 0)
       
       amr_filt() %>% 
+        filter(org_name != "No growth") %>%
         count(spec_method) %>% mutate(spec_method = fct_reorder(spec_method, n, .desc = FALSE)) %>%
         ggplot(aes(x = spec_method, weight = n)) + 
         geom_bar() +
@@ -228,6 +229,7 @@ shinyServer(
       req(nrow(amr_filt()) > 0)
       
       df <- amr_filt() %>%
+        filter(org_name != "No growth") %>%
         group_by(org_name) %>% 
         count() %>%
         arrange(desc(n)) %>%
@@ -243,6 +245,7 @@ shinyServer(
       req(nrow(amr_filt()) > 0)
       
       df <- amr_filt() %>%
+        filter(org_name != "No growth") %>%
         group_by(org_name) %>% 
         count() %>%
         arrange(desc(n)) %>%

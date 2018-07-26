@@ -17,17 +17,17 @@ img {
 /* Boxes */
 
 .alert {  /* Red fill and white text*/
-  padding: 20px;
-  background-color: #f44336;
+  padding: 10px;
+  background-color: #d63031;
   color: white;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 }
 
 .info { /* Blue fill and white text*/
-  padding: 20px;
-  background-color: #3366ff; 
+  padding: 10px;
+  background-color: #0984e3; 
   color: white;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 }
 
 

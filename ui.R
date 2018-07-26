@@ -135,8 +135,10 @@ fluidPage(
                        ),
                        tabPanel("Organisms", value = "organisms",
                                 h2("Total Isolates per Method of Collection"),
+                                em("All organisms labelled 'No growth' have been removed from this section."),
                                 plotOutput("isolates_method", height = "600px") %>% withSpinner(),
                                 h2("Total Isolates per Organism"),
+                                em("All organisms labelled 'No growth' have been removed from this section."),
                                 fluidRow(
                                   column(width = 8, 
                                          p("The graph below displays the 25 organisms with the more isolates, report to the table for the complete listing."),
@@ -151,7 +153,7 @@ fluidPage(
                                            fluidRow(
                                              htmlOutput("organism_isolates_ab"),
                                              column(width = 8,
-                                                    h2("SIR Status"),
+                                                    h2("Susceptibility Status"),
                                                     highchartOutput("organism_sir_ab", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 4,
@@ -164,7 +166,7 @@ fluidPage(
                                            fluidRow(
                                              htmlOutput("organism_isolates_ec"),
                                              column(width = 6,
-                                                    h2("SIR Status"),
+                                                    h2("Susceptibility Status"),
                                                     highchartOutput("organism_sir_ec", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 6,
@@ -178,7 +180,7 @@ fluidPage(
                                            fluidRow(
                                              htmlOutput("organism_isolates_kp"),
                                              column(width = 6,
-                                                    h2("SIR Status"),
+                                                    h2("Susceptibility Status"),
                                                     highchartOutput("organism_sir_kp", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 6,
@@ -192,12 +194,13 @@ fluidPage(
                                            fluidRow(
                                              htmlOutput("organism_isolates_sa"),
                                              column(width = 6,
-                                                    h2("SIR Status"),
+                                                    h2("Susceptibility Status"),
                                                     highchartOutput("organism_sir_sa", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 6,
                                                     h2("Cefoxitin MRSA per quarter"),
-                                                    highchartOutput("organism_mrsa_sa", height = "600px") %>% withSpinner()
+                                                    highchartOutput("organism_mrsa_sa", height = "600px") %>% withSpinner(),
+                                                    em("2017.3 = Third quarter of 2017")
                                              )
                                            )
                                   ),
@@ -206,7 +209,7 @@ fluidPage(
                                            fluidRow(
                                              htmlOutput("organism_isolates_sp"),
                                              column(width = 8,
-                                                    h2("SIR Status"),
+                                                    h2("Susceptibility Status"),
                                                     highchartOutput("organism_sir_sp", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 4,
@@ -219,7 +222,7 @@ fluidPage(
                                            fluidRow(
                                              htmlOutput("organism_isolates_st"),
                                              column(width = 8,
-                                                    h2("SIR Status"),
+                                                    h2("Susceptibility Status"),
                                                     highchartOutput("organism_sir_st", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 4,
@@ -232,7 +235,7 @@ fluidPage(
                                            fluidRow(
                                              htmlOutput("organism_isolates_ng"),
                                              column(width = 8,
-                                                    h2("SIR Status"),
+                                                    h2("Susceptibility Status"),
                                                     highchartOutput("organism_sir_ng", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 4,
@@ -249,7 +252,7 @@ fluidPage(
                                            fluidRow(
                                              htmlOutput("organism_isolates_all"),
                                              column(width = 8,
-                                                    h2("SIR Status"),
+                                                    h2("Susceptibility Status"),
                                                     highchartOutput("organism_sir_all", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 4,
