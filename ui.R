@@ -171,7 +171,8 @@ fluidPage(
                                              ),
                                              column(width = 6,
                                                     h2("ESBL Results"),
-                                                    highchartOutput("esbl_ec", height = "600px") %>% withSpinner()
+                                                    highchartOutput("esbl_ec", height = "600px") %>% withSpinner(),
+                                                    materialSwitch("esbl_ec_na", label = "Show Unknown", value = FALSE)
                                              )
                                            )
                                   ),
@@ -185,7 +186,8 @@ fluidPage(
                                              ),
                                              column(width = 6,
                                                     h2("ESBL Results"),
-                                                    highchartOutput("esbl_kp", height = "600px") %>% withSpinner()
+                                                    highchartOutput("esbl_kp", height = "600px") %>% withSpinner(),
+                                                    materialSwitch("esbl_ec_kp", label = "Show Unknown", value = FALSE)
                                              )
                                            )
                                   ),

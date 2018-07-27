@@ -57,14 +57,20 @@ output$esbl_kp <- renderHighchart({
   req(data_available())
   organism <- "Klebsiella pneumoniae"
   
-  total_tested <- amr_filt() %>% 
-    filter(org_name == organism, !is.na(antibiotic_name)) %>% 
+  ifelse(input$esbl_ec_kp == TRUE,
+         df1 <- amr_filt() %>% 
+           filter(org_name == organism, !is.na(antibiotic_name))
+         , 
+         df1 <- amr_filt() %>% 
+           filter(org_name == organism, !is.na(antibiotic_name), esbl != "Unknown")
+  )
+  
+  total_tested <- df1 %>% 
     count(antibiotic_name) %>%
     rename(total_org = n)
   
   
-  df <- amr_filt() %>% 
-    filter(org_name == organism, !is.na(antibiotic_name)) %>% 
+  df <- df1 %>% 
     group_by(antibiotic_name, esbl) %>%
     count() %>%
     ungroup() %>%

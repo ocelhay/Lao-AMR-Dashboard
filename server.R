@@ -103,7 +103,7 @@ shinyServer(
       if(input$date_range_selection == "Filter by Year"){
         return(
         amr() %>%
-          filter(spec_method %in% c("Clotted blood", "EDTA blood", "Haemoculture")) %>%
+          filter(spec_method == "Haemoculture") %>%
           filter(
             age_years >= input$age_patients_selection[1] | is.na(age_years),
             age_years <= input$age_patients_selection[2] | is.na(age_years),
@@ -117,7 +117,7 @@ shinyServer(
       if(input$date_range_selection == "Filter by Date Range"){
         return(
         amr() %>%
-          filter(spec_method %in% c("Clotted blood", "EDTA blood", "Haemoculture")) %>%
+          filter(spec_method == "Haemoculture") %>%
           filter(
             age_years >= input$age_patients_selection[1] | is.na(age_years),
             age_years <= input$age_patients_selection[2] | is.na(age_years),
