@@ -5,6 +5,9 @@ account: moru
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 378312
-bundleId: 1501052
+bundleId: 1531060
 url: https://moru.shinyapps.io/laoamr/
-when: 1532579685.55698
+when: 1534078446.56536
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .gitattributes

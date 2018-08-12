@@ -6,11 +6,14 @@ fluidPage(
                h2("LOMWRU"),
                h3("AMR Dashboard"),
                div(class = "imgsolidborder4", img(src = "ecoli_LOMWRU.png", alt = "Antibiotic susceptibility testing of a multi-drug resistant Escherichia coli isolated from the urine of a 51 year old Lao patient with a perinephric abscess. There are no inhibition zones surrounding any of the antibiotic disks, including meropenem (MEM, 12 o’clock position), a ‘last-line’ antibiotic. Whole-genome sequencing confirmed that this isolate was carrying a NDM-5 carbapenemase. Such infections are likely to become more frequent, given the ability of carbapenemases to spread and the increasing availability of meropenem in Laos.")),
-               conditionalPanel(condition = "input.tabs == 'welcome'", p("Antibiotic susceptibility testing of a multi-drug resistant", em("Escherichia coli"), "isolated from the urine of a 51 year old Lao patient with a perinephric abscess. There are no inhibition zones surrounding any of the antibiotic disks, including meropenem (MEM, 12 o’clock position), a ‘last-line’ antibiotic. Whole-genome sequencing confirmed that this isolate was carrying a NDM-5 carbapenemase. Such infections are likely to become more frequent, given the ability of carbapenemases to spread and the increasing availability of meropenem in Laos.")),
+               conditionalPanel(condition = "input.tabs == 'welcome' | input.tabs == 'about'", p("Antibiotic susceptibility testing of a multi-drug resistant", em("Escherichia coli"), "isolated from the urine of a 51 year old Lao patient with a perinephric abscess. There are no inhibition zones surrounding any of the antibiotic disks, including meropenem (MEM, 12 o’clock position), a ‘last-line’ antibiotic. Whole-genome sequencing confirmed that this isolate was carrying a NDM-5 carbapenemase. Such infections are likely to become more frequent, given the ability of carbapenemases to spread and the increasing availability of meropenem in Laos.")),
                br(),
                
                conditionalPanel(condition = "input.tabs == 'patients' | input.tabs == 'blood_culture' | input.tabs == 'specimens' | input.tabs == 'organisms' | input.tabs == 'amr'",
                                 div(class = "border4",
+                                    
+                                    htmlOutput("data_status_duplicated"),
+                                    
                                     h3(icon("filter", "fa-1x"), "Filter the Dataset:"),
                                     
                                     fluidRow(

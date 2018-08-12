@@ -63,30 +63,30 @@ shinyServer(
       
       if(input$date_range_selection == "Filter by Year"){
         return(
-        amr() %>%
-          filter(
-            age_years >= input$age_patients_selection[1] | is.na(age_years),
-            age_years <= input$age_patients_selection[2] | is.na(age_years),
-            province %in% input$province_patients_selection | is.na(province),
-            spec_year %in% input$year_selection | is.na(spec_year),
-            spec_method %in% input$spec_method_selection | is.na(spec_method),
-            location %in% input$spec_method_collection | is.na(location)
-          )
+          amr() %>%
+            filter(
+              age_years >= input$age_patients_selection[1] | is.na(age_years),
+              age_years <= input$age_patients_selection[2] | is.na(age_years),
+              province %in% input$province_patients_selection | is.na(province),
+              spec_year %in% input$year_selection | is.na(spec_year),
+              spec_method %in% input$spec_method_selection | is.na(spec_method),
+              location %in% input$spec_method_collection | is.na(location)
+            )
         )
       }
       
       if(input$date_range_selection == "Filter by Date Range"){
         return(
-        amr() %>%
-          filter(
-            age_years >= input$age_patients_selection[1] | is.na(age_years),
-            age_years <= input$age_patients_selection[2] | is.na(age_years),
-            province %in% input$province_patients_selection | is.na(province),
-            spec_date >= input$date_selection[1] | is.na(spec_date),
-            spec_date <= input$date_selection[2] | is.na(spec_date),
-            spec_method %in% input$spec_method_selection | is.na(spec_method),
-            location %in% input$spec_method_collection | is.na(location)
-          )
+          amr() %>%
+            filter(
+              age_years >= input$age_patients_selection[1] | is.na(age_years),
+              age_years <= input$age_patients_selection[2] | is.na(age_years),
+              province %in% input$province_patients_selection | is.na(province),
+              spec_date >= input$date_selection[1] | is.na(spec_date),
+              spec_date <= input$date_selection[2] | is.na(spec_date),
+              spec_method %in% input$spec_method_selection | is.na(spec_method),
+              location %in% input$spec_method_collection | is.na(location)
+            )
         )
       }
     })
@@ -102,30 +102,30 @@ shinyServer(
       
       if(input$date_range_selection == "Filter by Year"){
         return(
-        amr() %>%
-          filter(spec_method == "Haemoculture") %>%
-          filter(
-            age_years >= input$age_patients_selection[1] | is.na(age_years),
-            age_years <= input$age_patients_selection[2] | is.na(age_years),
-            province %in% input$province_patients_selection | is.na(province),
-            spec_year %in% input$year_selection | is.na(spec_year),
-            location %in% input$spec_method_collection  | is.na(spec_method)
-          )
+          amr() %>%
+            filter(spec_method == "Haemoculture") %>%
+            filter(
+              age_years >= input$age_patients_selection[1] | is.na(age_years),
+              age_years <= input$age_patients_selection[2] | is.na(age_years),
+              province %in% input$province_patients_selection | is.na(province),
+              spec_year %in% input$year_selection | is.na(spec_year),
+              location %in% input$spec_method_collection  | is.na(spec_method)
+            )
         )
       }
       
       if(input$date_range_selection == "Filter by Date Range"){
         return(
-        amr() %>%
-          filter(spec_method == "Haemoculture") %>%
-          filter(
-            age_years >= input$age_patients_selection[1] | is.na(age_years),
-            age_years <= input$age_patients_selection[2] | is.na(age_years),
-            province %in% input$province_patients_selection | is.na(province),
-            spec_date >= input$date_selection[1] | is.na(spec_date),
-            spec_date <= input$date_selection[2] | is.na(spec_date),
-            location %in% input$spec_method_collection  | is.na(spec_method)
-          )
+          amr() %>%
+            filter(spec_method == "Haemoculture") %>%
+            filter(
+              age_years >= input$age_patients_selection[1] | is.na(age_years),
+              age_years <= input$age_patients_selection[2] | is.na(age_years),
+              province %in% input$province_patients_selection | is.na(province),
+              spec_date >= input$date_selection[1] | is.na(spec_date),
+              spec_date <= input$date_selection[2] | is.na(spec_date),
+              location %in% input$spec_method_collection  | is.na(spec_method)
+            )
         )
       }
     })
@@ -148,7 +148,19 @@ shinyServer(
       )
     })
     
-
+    output$data_status_duplicated <- renderText({
+      
+      ifelse(data_available(),
+             paste0(div(class = "info", icon("info-circle", "fa-2x"), strong("Data uploaded"), tags$ul( 
+               tags$li("Dataset source: ", source_data()),
+               tags$li("Dataset generated on the ", date_generation()),
+               tags$li("Dataset contains ", n_distinct(amr()$patient_id), " patients", " and ", n_distinct(amr()$spec_id)," specimens."))
+             )),
+             paste0(div(class = "alert", icon("exclamation-triangle", "fa-2x"), strong("There is no data to display,"), " please upload a dataset."))
+      )
+    })
+    
+    
     output$filter_text <- renderText({
       req(data_available())
       
@@ -157,43 +169,47 @@ shinyServer(
       n_specimens_start <- n_distinct(amr()$spec_id)
       n_specimens_end <- n_distinct(amr_filt()$spec_id)
       
-      ifelse((n_patients_start == n_patients_end) & (n_specimens_start == n_specimens_end),
-             paste0(div(class = "info", icon("info-circle", "fa-1x"), strong("Dataset has not been filtered"), tags$ul( 
-               tags$li("There are ", n_patients_start, " patients."),
-               tags$li("There are ", n_specimens_start," specimens.")
-             ))),
-             paste0(div(class = "alert", icon("filter", "fa-1x"), strong("Dataset is filtered"), tags$ul(  
-                          tags$li("There are ", n_patients_end, " of the ", n_patients_start, " patients."),
-                          tags$li("There are ", n_specimens_end, " of the ", n_specimens_start, " specimens.")
-                        )
-             ))
-      )
+      if(n_patients_start != n_patients_end | (n_specimens_start != n_specimens_end)){
+        return(
+          # paste0(div(class = "info", icon("info-circle", "fa-1x"), strong("Dataset has not been filtered"), tags$ul( 
+          #   tags$li("There are ", n_patients_start, " patients."),
+          #   tags$li("There are ", n_specimens_start," specimens.")
+          # )
+          paste0(div(class = "alert", icon("filter", "fa-1x"), strong("Dataset is filtered"), tags$ul(
+                       tags$li("There are ", n_patients_end, " of the ", n_patients_start, " patients."),
+                       tags$li("There are ", n_specimens_end, " of the ", n_specimens_start, " specimens.")
+                     )
+          ))
+          )
+      }
+      
+      return(NULL)
     })
     
     
     source("www/server_tab_blood.R", local = TRUE)
     
     
-
-# Patient Tab ---------------------------------------------------------------------------------------------------------------
-
-    output$patients_nb <- renderPlot({
-        req(nrow(amr_filt()) > 0)
-        
-        amr_filt() %>% 
-          group_by(location) %>% summarise(count = n_distinct(patient_id)) %>% ungroup() %>%
-          mutate(location = fct_reorder(location, count, .desc = FALSE)) %>%
-          ggplot(aes(x = location, weight = count)) + 
-          geom_bar() +
-          geom_label(aes(y = count, label = count)) +
-          coord_flip() +
-          labs(x = NULL, y = "Total Patients", x = "Collection Place") +
-          theme_minimal(base_size = 16)
-      })
     
-
-# Specimens Tab -------------------------------------------------------------------------------------------------------------
-
+    # Patient Tab ---------------------------------------------------------------------------------------------------------------
+    
+    output$patients_nb <- renderPlot({
+      req(nrow(amr_filt()) > 0)
+      
+      amr_filt() %>% 
+        group_by(location) %>% summarise(count = n_distinct(patient_id)) %>% ungroup() %>%
+        mutate(location = fct_reorder(location, count, .desc = FALSE)) %>%
+        ggplot(aes(x = location, weight = count)) + 
+        geom_bar() +
+        geom_label(aes(y = count, label = count)) +
+        coord_flip() +
+        labs(x = NULL, y = "Total Patients", x = "Collection Place") +
+        theme_minimal(base_size = 16)
+    })
+    
+    
+    # Specimens Tab -------------------------------------------------------------------------------------------------------------
+    
     output$specimens_method <- renderPlot({
       req(nrow(amr_filt()) > 0)
       
