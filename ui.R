@@ -133,7 +133,7 @@ fluidPage(
                        ),
                        tabPanel("Specimens", value = "specimens",
                                 h2("Total Specimens per Method of Collection"),
-                                p("Use the UI elements located on the the sidebar to filter and display, for example, only specimens collected in a specific hospital."),
+                                p("Use filters located on the the sidebar to select and display, for example, only specimens collected in a specific hospital."),
                                 plotOutput("specimens_method", height = "600px") %>% withSpinner()
                        ),
                        tabPanel("Organisms", value = "organisms",
