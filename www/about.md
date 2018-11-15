@@ -1,2 +1,3 @@
+This app was developed by [Olivier Celhay](mailto:olivier.celhay@gmail.com) and thanks to the expertise of [Tamalee Roberts](Tamalee.R@tropmedres.ac), [Paul Newton](paul.newton@tropmedres.ac), [Vilada Chansamouth](Vilada@tropmedres.ac), [David Dance](David.d@tropmedres.ac) and [Paul Turner](Pault@tropmedres.ac).
 
-For any inquiry on this application, [please contact us.](mailto:paul.newton@tropmedres.ac?cc=olivier.celhay@gmail.com) 
+For any inquiry on this application, [please contact Paul Newton.](mailto:paul.newton@tropmedres.ac)

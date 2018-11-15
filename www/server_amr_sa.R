@@ -69,18 +69,17 @@ output$organism_mrsa_sa <- renderHighchart({
     left_join(total_tested, by = "spec_quarter") %>%
     mutate(percent = round(100*n / total2, 1),
            resistance = case_when(
-             resistance == "S" ~ "Susceptible",
-             resistance == "I" ~ "Intermediate",
-             resistance == "R" ~ "Resistant",
+             resistance == "S" ~ "Susceptible S. aureus",
+             resistance == "R" ~ "MRSA",
              TRUE ~ "Unknown")) %>%
-    mutate(resistance = factor(resistance, levels = c("Susceptible", "Intermediate", "Resistant", "Unknown"))) %>%
+    mutate(resistance = factor(resistance, levels = c("Susceptible S. aureus", "MRSA", "Unknown"))) %>%
     complete(resistance, nesting(spec_quarter)) %>%
     mutate(spec_quarter = as.character(quarter(spec_quarter, with_year = TRUE)))
   
   return(
     hchart(mrsa_results, type = "column", hcaes(x = "spec_quarter", y = "percent", group = "resistance")) %>%
       hc_yAxis(title = "", max = 100) %>% hc_xAxis(title = "") %>%
-      hc_colors(cols_sir) %>%
+      hc_colors(cols_sir[c(1, 3, 4)]) %>%
       hc_tooltip(headerFormat = "",
                  pointFormat = "<b>{point.spec_quarter}</b><br> {point.resistance}: {point.percent}% <br>({point.n} of {point.total2} tested.)") %>%
       hc_plotOptions(series = list(stacking = 'normal'))

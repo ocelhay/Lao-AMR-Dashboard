@@ -24,6 +24,7 @@ output$province_specimen_blood <- renderPlot({
   req(nrow(amr_blood_filt()) > 0)
   
   amr_blood_filt() %>% 
+    group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
     count(province) %>% mutate(province = fct_reorder(province, n, .desc = FALSE)) %>%
     ggplot(aes(x = province, weight = n)) + 
     geom_bar() +
@@ -37,6 +38,7 @@ output$hospital_specimen_blood <- renderPlot({
   req(nrow(amr_blood_filt()) > 0)
   
   amr_blood_filt() %>% 
+    group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
     count(location) %>% mutate(location = fct_reorder(location, n, .desc = FALSE)) %>%
     ggplot(aes(x = location, weight = n)) + 
     geom_bar() +
@@ -72,6 +74,7 @@ output$count_organisms_blood <- renderHighchart({
   req(nrow(amr_blood_filt()) > 0)
   
   df <- amr_blood_filt() %>%
+    group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
     filter(org_name != "No growth") %>%
     count(org_name) %>% 
     arrange(desc(n)) %>%
@@ -87,8 +90,10 @@ output$table_organisms_blood <- renderDataTable({
   req(nrow(amr_blood_filt()) > 0)
   
   amr_blood_filt() %>% 
+    group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
     filter(org_name != "No growth") %>%
     count(org_name) %>% mutate(org_name = fct_reorder(org_name, n, .desc = FALSE)) %>%
+    arrange(desc(n)) %>%
     transmute(Organisms = org_name, Count = n) %>%
     datatable(rownames = FALSE, filter = "none", options = list(pageLength = 100, dom = 'ft'))
 })

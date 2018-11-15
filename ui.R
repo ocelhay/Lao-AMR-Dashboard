@@ -173,9 +173,9 @@ fluidPage(
                                                     highchartOutput("organism_sir_ec", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 6,
-                                                    h2("ESBL Results"),
+                                                    h2("ESBL Results per quarter"),
                                                     highchartOutput("esbl_ec", height = "600px") %>% withSpinner(),
-                                                    materialSwitch("esbl_ec_na", label = "Show Unknown", value = FALSE)
+                                                    em("2017.3 = Third quarter of 2017")
                                              )
                                            )
                                   ),
@@ -188,9 +188,9 @@ fluidPage(
                                                     highchartOutput("organism_sir_kp", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 6,
-                                                    h2("ESBL Results"),
+                                                    h2("ESBL Results per quarter"),
                                                     highchartOutput("esbl_kp", height = "600px") %>% withSpinner(),
-                                                    materialSwitch("esbl_ec_kp", label = "Show Unknown", value = FALSE)
+                                                    em("2017.3 = Third quarter of 2017")
                                              )
                                            )
                                   ),
@@ -268,6 +268,7 @@ fluidPage(
                                 )
                        ),
                        tabPanel("About", value = "about",
+                                a(href = "http://www.tropmedres.ac/home", img(src = "MORU_logo.jpg", height = "100px")),
                                 includeMarkdown("./www/about.md")
                        )
             )
