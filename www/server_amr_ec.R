@@ -50,58 +50,29 @@ output$organism_sir_ec <- renderHighchart({
 
 # ESBL Status ---------------------------------------------------------------------------------------------------------------
 
-# output$esbl_ec <- renderHighchart({
-#   req(data_available())
-#   organism <- "Escherichia coli"
-#   
-#   ifelse(input$esbl_ec_na == TRUE,
-#          df1 <- amr_filt() %>% 
-#            filter(org_name == organism, !is.na(antibiotic_name))
-#          , 
-#          df1 <- amr_filt() %>% 
-#            filter(org_name == organism, !is.na(antibiotic_name), esbl != "Unknown")
-#   )
-#   
-#   total_tested <- df1 %>% 
-#     count(antibiotic_name) %>%
-#     rename(total_org = n)
-#   
-#   df <- df1 %>% 
-#     group_by(antibiotic_name, esbl) %>%
-#     count() %>%
-#     ungroup() %>%
-#     left_join(total_tested, by = "antibiotic_name") %>%
-#     mutate(percent = round(100*n / total_org, 1)) %>%
-#     mutate(esbl = factor(esbl, levels = c("Negative", "Positive", "Unknown"))) %>%
-#     complete(esbl, nesting(antibiotic_name), fill = list(n = 0))
-#   
-#   
-#   hchart(df, type = "bar", hcaes(x = "antibiotic_name", y = "percent", group = "esbl")) %>%
-#     hc_yAxis(title = "", max = 100) %>% hc_xAxis(title = "") %>%
-#     hc_colors(cols_esbl) %>%
-#     hc_tooltip(headerFormat = "",
-#                pointFormat = "<b>{point.antibiotic_name}</b><br> {point.esbl}: {point.percent}% ({point.n} of {point.total_org}.)") %>%
-#     hc_plotOptions(series = list(stacking = 'normal'))
-#   
-# })
-
-
 output$esbl_ec <- renderHighchart({
   req(data_available())
   
   organism <- "Escherichia coli"
   
+  # amr_filt <- function() data$amr %>% filter(organism == organism)
+  
   total_tested <- amr_filt() %>% 
     filter(org_name == organism) %>% 
     mutate(spec_quarter = round_date(spec_date, "3 months")) %>%
     group_by(spec_quarter) %>%
-    count() %>%
-    rename(total2 = n)
+    summarise(total2 = n_distinct(spec_id)) %>%
+    ungroup()
   
   esbl_results <- amr_filt() %>% 
     filter(org_name == organism) %>% 
     mutate(spec_quarter = round_date(spec_date, "3 months")) %>%
-    count(spec_quarter, esbl) %>%
+    group_by(spec_quarter, spec_id) %>%
+    filter(row_number(spec_id) == 1) %>%
+    ungroup() %>%
+    group_by(spec_quarter, esbl) %>%
+    count() %>%
+    ungroup() %>%
     left_join(total_tested, by = "spec_quarter") %>%
     mutate(percent = round(100*n / total2, 1),
            resistance = case_when(

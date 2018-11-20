@@ -62,13 +62,18 @@ output$esbl_kp <- renderHighchart({
     filter(org_name == organism) %>% 
     mutate(spec_quarter = round_date(spec_date, "3 months")) %>%
     group_by(spec_quarter) %>%
-    count() %>%
-    rename(total2 = n)
+    summarise(total2 = n_distinct(spec_id)) %>%
+    ungroup()
   
   esbl_results <- amr_filt() %>% 
     filter(org_name == organism) %>% 
     mutate(spec_quarter = round_date(spec_date, "3 months")) %>%
-    count(spec_quarter, esbl) %>%
+    group_by(spec_quarter, spec_id) %>%
+    filter(row_number(spec_id) == 1) %>%
+    ungroup() %>%
+    group_by(spec_quarter, esbl) %>%
+    count() %>%
+    ungroup() %>%
     left_join(total_tested, by = "spec_quarter") %>%
     mutate(percent = round(100*n / total2, 1),
            resistance = case_when(
