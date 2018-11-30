@@ -17,45 +17,64 @@ shinyServer(
     }, ignoreNULL = FALSE)
     
     # Load .Rdata from input and update reactive values.
-    observeEvent(input$file_RData,{
-      
-      # Escape if there is no data, otherwise load data
-      if (is.null(input$file_RData)) return(NULL)
-      inFile <- input$file_RData
-      file <- inFile$datapath
-      load(file, envir = .GlobalEnv)
-      
-      # Update reactive values
-      data_available(TRUE)
-      amr(data$amr)
-      source_data(data$source_data)
-      date_generation(data$date_generation)
-      
-      # Show Tabs
-      showTab(inputId = "tabs", target = "blood_culture")
-      showTab(inputId = "tabs", target = "patients")
-      showTab(inputId = "tabs", target = "specimens")
-      showTab(inputId = "tabs", target = "organisms")
-      showTab(inputId = "tabs", target = "amr")
-      
-      # Update elements for the UI
-      all_provinces <- sort(unique(amr()$province))
-      all_locations <- sort(unique(amr()$location))
-      all_org_name <- sort(unique(amr()$org_name))
-      all_spec_method <- sort(unique(amr()$spec_method))
-      all_spec_year <- unique(amr()$spec_year)
-      oldest_patient <- max(amr()$age_years, na.rm = TRUE)
-      min_collection_date <- min(amr()$spec_date)
-      max_collection_date <- max(amr()$spec_date)
-      
-      updateSliderInput(session = session, "age_patients_selection", max = oldest_patient, value = c(0, oldest_patient))
-      updatePickerInput(session = session, "province_patients_selection", choices = all_provinces, selected = all_provinces)
-      updateCheckboxGroupInput(session = session, "year_selection", choices = all_spec_year, selected = all_spec_year)
-      updateDateRangeInput(session = session, "date_selection", start = min_collection_date, end = max_collection_date)
-      updatePickerInput(session = session, "spec_method_collection", choices = all_locations, selected = all_locations)
-      updatePickerInput(session = session, "spec_method_selection", choices = all_spec_method, selected = all_spec_method)
-      updatePickerInput(session = session, "organism", choices = all_org_name, selected = all_org_name)
-    })
+    observeEvent({
+      input$file_RData
+      input$mock_data_use},
+      {
+        if (input$mock_data_use == TRUE){
+          load("./www/AMR_mock_data_demo.RData", envir = .GlobalEnv)
+        }
+        
+        if (input$mock_data_use == FALSE){
+          # Reinitiate the app
+          data_available(FALSE)
+          amr(NULL)
+          source_data(NULL)
+          date_generation(NULL)
+          hideTab(inputId = "tabs", target = "blood_culture")
+          hideTab(inputId = "tabs", target = "patients")
+          hideTab(inputId = "tabs", target = "specimens")
+          hideTab(inputId = "tabs", target = "organisms")
+          hideTab(inputId = "tabs", target = "amr")
+
+          if (is.null(input$file_RData)) return(NULL)
+          inFile <- input$file_RData
+          file <- inFile$datapath
+          load(file, envir = .GlobalEnv)
+        }
+        
+        # Update reactive values
+        data_available(TRUE)
+        amr(data$amr)
+        source_data(data$source_data)
+        date_generation(data$date_generation)
+        
+        # Show Tabs
+        showTab(inputId = "tabs", target = "blood_culture")
+        showTab(inputId = "tabs", target = "patients")
+        showTab(inputId = "tabs", target = "specimens")
+        showTab(inputId = "tabs", target = "organisms")
+        showTab(inputId = "tabs", target = "amr")
+        
+        # Update elements for the UI
+        all_provinces <- sort(unique(amr()$province))
+        all_locations <- sort(unique(amr()$location))
+        all_org_name <- sort(unique(amr()$org_name))
+        all_spec_method <- sort(unique(amr()$spec_method))
+        all_spec_year <- unique(amr()$spec_year)
+        oldest_patient <- max(amr()$age_years, na.rm = TRUE)
+        min_collection_date <- min(amr()$spec_date)
+        max_collection_date <- max(amr()$spec_date)
+        
+        updateSliderInput(session = session, "age_patients_selection", max = oldest_patient, value = c(0, oldest_patient))
+        updatePickerInput(session = session, "province_patients_selection", choices = all_provinces, selected = all_provinces)
+        updateCheckboxGroupInput(session = session, "year_selection", choices = all_spec_year, selected = all_spec_year)
+        updateDateRangeInput(session = session, "date_selection", start = min_collection_date, end = max_collection_date)
+        updatePickerInput(session = session, "spec_method_collection", choices = all_locations, selected = all_locations)
+        updatePickerInput(session = session, "spec_method_selection", choices = all_spec_method, selected = all_spec_method)
+        updatePickerInput(session = session, "organism", choices = all_org_name, selected = all_org_name)
+    },
+    ignoreInit = TRUE)
     
     
     # Create a reactive dataframe applying filters to amr
@@ -144,7 +163,7 @@ shinyServer(
                tags$li("Dataset generated on the ", date_generation()),
                tags$li("Dataset contains ", n_distinct(amr()$patient_id), " patients", " and ", n_distinct(amr()$spec_id)," specimens."))
              )),
-             paste0(div(class = "alert", icon("exclamation-triangle", "fa-2x"), strong("There is no data to display,"), " please upload a dataset."))
+             paste0(div(class = "alert", icon("exclamation-triangle", "fa-2x"), strong("There is no data to display,"), " upload the dataset provided by LOMWRU or use the mock dataset."))
       )
     })
     
@@ -156,7 +175,7 @@ shinyServer(
                tags$li("Dataset generated on the ", date_generation()),
                tags$li("Dataset contains ", n_distinct(amr()$patient_id), " patients", " and ", n_distinct(amr()$spec_id)," specimens."))
              )),
-             paste0(div(class = "alert", icon("exclamation-triangle", "fa-2x"), strong("There is no data to display,"), " please upload a dataset."))
+             paste0(div(class = "alert", icon("exclamation-triangle", "fa-2x"), strong("There is no data to display,"), " upload the dataset provided by LOMWRU or use the mock dataset."))
       )
     })
     
