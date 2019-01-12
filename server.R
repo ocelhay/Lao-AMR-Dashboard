@@ -1,6 +1,46 @@
 shinyServer(
   function(input, output, session) {
     
+    # Translator
+    i18n <- reactive({
+      selected <- input$lang
+      if (length(selected) > 0 && selected %in% translator$languages) {
+        translator$set_translation_language(selected)
+      }
+      translator
+    })
+    
+    # Elements of the UI
+    
+    output$ui_ecoli_legend <- renderText({
+       HTML(i18n()$t("ecoli_legend"))
+      })
+    
+    output$ui_about_amr <- renderText({
+      HTML(i18n()$t("about_amr"))
+    })
+    
+    output$ui_disclaimer_1 <- renderText({
+      HTML(i18n()$t("disclaimer_1"))
+    })
+    
+    output$ui_disclaimer_2 <- renderText({
+      HTML(i18n()$t("disclaimer_2"))
+    })
+    
+    output$ui_disclaimer_3 <- renderText({
+      HTML(i18n()$t("disclaimer_3"))
+    })
+    
+    output$ui_disclaimer_4 <- renderText({
+      HTML(i18n()$t("disclaimer_4"))
+    })
+    
+    output$ui_disclaimer_5 <- renderText({
+      HTML(i18n()$t("disclaimer_5"))
+    })
+    
+    
     # Initiate reactive values
     data_available <- reactiveVal(FALSE)
     amr <- reactiveVal(NULL)
@@ -158,24 +198,24 @@ shinyServer(
     output$data_status <- renderText({
       
       ifelse(data_available(),
-             paste0(div(class = "info", icon("info-circle", "fa-2x"), strong("Data uploaded"), tags$ul( 
-               tags$li("Dataset source: ", source_data()),
+             paste0(div(class = "info2", h4(icon("info-circle", "fa-1x"), "Data uploaded"), tags$ul( 
+               tags$li("Dataset: ", source_data()),
                tags$li("Dataset generated on the ", date_generation()),
                tags$li("Dataset contains ", n_distinct(amr()$patient_id), " patients", " and ", n_distinct(amr()$spec_id)," specimens."))
              )),
-             paste0(div(class = "alert", icon("exclamation-triangle", "fa-2x"), strong("There is no data to display,"), " upload the dataset provided by LOMWRU or use the mock dataset."))
+             paste0(div(class = "alert", h4(icon("exclamation-triangle", "fa-1x"), "There is no data to display"), "Upload a dataset provided by LOMWRU or 'Use Mock Dataset'."))
       )
     })
     
     output$data_status_duplicated <- renderText({
       
       ifelse(data_available(),
-             paste0(div(class = "info", icon("info-circle", "fa-2x"), strong("Data uploaded"), tags$ul( 
-               tags$li("Dataset source: ", source_data()),
+             paste0(div(class = "info2", h4(icon("info-circle", "fa-1x"), "Data uploaded"), tags$ul( 
+               tags$li("Dataset: ", source_data()),
                tags$li("Dataset generated on the ", date_generation()),
                tags$li("Dataset contains ", n_distinct(amr()$patient_id), " patients", " and ", n_distinct(amr()$spec_id)," specimens."))
              )),
-             paste0(div(class = "alert", icon("exclamation-triangle", "fa-2x"), strong("There is no data to display,"), " upload the dataset provided by LOMWRU or use the mock dataset."))
+             paste0(div(class = "alert", h4(icon("exclamation-triangle", "fa-1x"), "There is no data to display,"), br(), "Upload a dataset provided by LOMWRU or 'Use Mock Dataset'."))
       )
     })
     

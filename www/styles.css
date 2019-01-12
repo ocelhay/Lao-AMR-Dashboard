@@ -16,6 +16,10 @@ img {
 
 /* Boxes */
 
+.h4 {
+  color: white;
+}
+
 .alert {  /* Red fill and white text*/
   padding: 10px;
   background-color: #d63031;
@@ -23,11 +27,16 @@ img {
   margin-bottom: 5px;
 }
 
-.info { /* Blue fill and white text*/
+.info2 { /* Blue fill and white text*/
   padding: 10px;
   background-color: #0984e3; 
   color: white;
   margin-bottom: 5px;
+}
+
+/* https://github.com/CSSLint/csslint/wiki/Disallow-qualified-headings */
+.info2 h4{
+   color: white; 
 }
 
 
@@ -102,4 +111,8 @@ http://colorbrewer2.org/#type=qualitative&scheme=Set1&n=3 */
 
 .right {
   float: right;
+}
+
+.large {
+  font-size: 16px;
 }

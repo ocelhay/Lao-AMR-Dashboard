@@ -6,4 +6,4 @@ While *Mahosod hospital/LOMWRU* has attempted to ensure the accuracy of the data
 
 This report is not intended to provide medical advice.
 
-**PLEASE NOTE: This app may time-out if left idle too long, which will cause the screen to grey-out. To use the app again, refresh the page. This will reset all previously-selected input options.**
+PLEASE NOTE: This app may time-out if left idle too long, which will cause the screen to grey-out. To use the app again, refresh the page. This will reset all previously-selected input options.
