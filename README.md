@@ -1,4 +1,5 @@
-# Lao AMR Dashboard
+## Lao AMR Dashboard
 
-A dashboard for AMR data in Lao.
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 [https://moru.shinyapps.io/laoamr/](https://moru.shinyapps.io/laoamr/)
