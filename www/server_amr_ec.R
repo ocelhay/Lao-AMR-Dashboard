@@ -39,7 +39,7 @@ output$organism_sir_ec <- renderHighchart({
   return(
     hchart(sir_results, type = "bar", hcaes(x = "antibiotic_name", y = "percent", group = "resistance")) %>%
       hc_yAxis(title = "", max = 100) %>% hc_xAxis(title = "") %>%
-      hc_colors(cols_sir) %>%
+      hc_colors(cols_sir_ec_kp) %>%
       hc_tooltip(headerFormat = "",
                  pointFormat = "<b>{point.antibiotic_name}</b><br> {point.resistance}: {point.percent}% <br>({point.n} of {point.total_org} tested.)") %>%
       hc_plotOptions(series = list(stacking = 'normal'))
@@ -86,7 +86,7 @@ output$esbl_ec <- renderHighchart({
   return(
     hchart(esbl_results, type = "column", hcaes(x = "spec_quarter", y = "percent", group = "resistance")) %>%
       hc_yAxis(title = "", max = 100) %>% hc_xAxis(title = "") %>%
-      hc_colors(cols_sir[c(1, 3, 4)]) %>%
+      hc_colors(cols_sir_ec_kp[c(1, 3, 4)]) %>%
       hc_tooltip(headerFormat = "",
                  pointFormat = "<b>{point.spec_quarter}</b><br> {point.resistance}: {point.percent}% <br>({point.n} of {point.total2} tested.)") %>%
       hc_plotOptions(series = list(stacking = 'normal'))
