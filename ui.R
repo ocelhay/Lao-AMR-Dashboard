@@ -137,9 +137,8 @@ fluidPage(
                                 h2("Total Organisms"),
                                 fluidRow(
                                   column(width = 8,
-                                         p("The graph below displays the 25 more commons organisms, report to the table for the complete listing."),
-                                         highchartOutput("count_organisms_blood", height = "900px") %>% withSpinner()
-                                         # plotOutput("count_organisms_blood", height = "800px") %>% withSpinner(),
+                                         p("The graph below displays the 25 most commons organisms, report to the table for the complete listing."),
+                                         plotOutput("count_organisms_blood", height = "600px") %>% withSpinner()
                                   ),
                                   column(width = 4,
                                          p("Table of all organisms:"),
@@ -149,20 +148,20 @@ fluidPage(
                                 br()
                        ),
                        tabPanel("Specimens", value = "specimens",
-                                h2("Total Specimens per Method of Collection"),
+                                h2("Total Specimens per Specimen Type"),
                                 p("Use filters located on the the sidebar to select and display, for example, only specimens collected in a specific hospital."),
                                 plotOutput("specimens_method", height = "600px") %>% withSpinner()
                        ),
                        tabPanel("Organisms", value = "organisms",
-                                h2("Total Isolates per Method of Collection"),
+                                h2("Total Number of Positive Isolates per Specimen"),
                                 em("All organisms labelled 'No growth' have been removed from this section."),
                                 plotOutput("isolates_method", height = "600px") %>% withSpinner(),
-                                h2("Total Isolates per Organism"),
+                                h2("Total Number of Isolates by Organism"),
                                 em("All organisms labelled 'No growth' have been removed from this section."),
                                 fluidRow(
                                   column(width = 8, 
                                          p("The graph below displays the 25 organisms with the more isolates, report to the table for the complete listing."),
-                                         highchartOutput("isolates_organisms", height = "900px") %>% withSpinner()),
+                                         plotOutput("isolates_organisms", height = "600px") %>% withSpinner()),
                                   column(width = 4, dataTableOutput("table_isolates_organisms") %>% withSpinner())
                                 )
                        ),

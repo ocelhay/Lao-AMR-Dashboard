@@ -70,20 +70,23 @@ output$growth_blood <- renderPlot({
 
 
 
-output$count_organisms_blood <- renderHighchart({
+output$count_organisms_blood <- renderPlot({
   req(nrow(amr_blood_filt()) > 0)
   
-  df <- amr_blood_filt() %>%
+  amr_blood_filt() %>%
     group_by(spec_id) %>% filter(row_number() == 1) %>% ungroup() %>%
     filter(org_name != "No growth") %>%
-    count(org_name) %>% 
+    count(org_name) %>%
     arrange(desc(n)) %>%
-    head(n = 25)
-  
-  highchart() %>%
-    hc_chart(type = "bar") %>%
-    hc_xAxis(categories = df$org_name) %>% 
-    hc_add_series(data = df$n, name = "Total Organisms", colorByPoint = TRUE)
+    head(n = 25) %>%
+    mutate(org_name = fct_reorder(org_name, n, .desc = FALSE)) %>%
+    ggplot(aes(x = org_name, weight = n)) + 
+    geom_bar() +
+    geom_label(aes(y = n, label = n)) +
+    labs(x = NULL, y = "Total Organisms") +
+    coord_flip() +
+    theme_minimal(base_size = 15) +
+    theme(axis.text = element_text(face = 'italic'))
 })
 
 output$table_organisms_blood <- renderDataTable({
@@ -94,6 +97,6 @@ output$table_organisms_blood <- renderDataTable({
     filter(org_name != "No growth") %>%
     count(org_name) %>% mutate(org_name = fct_reorder(org_name, n, .desc = FALSE)) %>%
     arrange(desc(n)) %>%
-    transmute(Organisms = org_name, Count = n) %>%
-    datatable(rownames = FALSE, filter = "none", options = list(pageLength = 100, dom = 'ft'))
+    transmute(Organisms = paste0('<em>', org_name, '</em>'), Count = n) %>%
+    datatable(rownames = FALSE, filter = "none", escape = FALSE, options = list(pageLength = 100, dom = 'ft'))
 })

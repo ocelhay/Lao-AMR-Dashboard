@@ -152,7 +152,7 @@ shinyServer(
     
     amr_blood <- reactive({
       amr() %>%
-        filter(spec_method == "Haemoculture")
+        filter(spec_method == "Blood culture")
     })
     
     
@@ -162,7 +162,7 @@ shinyServer(
       if(input$date_range_selection == "Filter by Year"){
         return(
           amr() %>%
-            filter(spec_method == "Haemoculture") %>%
+            filter(spec_method == "Blood culture") %>%
             filter(
               age_years >= input$age_patients_selection[1] | is.na(age_years),
               age_years <= input$age_patients_selection[2] | is.na(age_years),
@@ -176,7 +176,7 @@ shinyServer(
       if(input$date_range_selection == "Filter by Date Range"){
         return(
           amr() %>%
-            filter(spec_method == "Haemoculture") %>%
+            filter(spec_method == "Blood culture") %>%
             filter(
               age_years >= input$age_patients_selection[1] | is.na(age_years),
               age_years <= input$age_patients_selection[2] | is.na(age_years),
@@ -300,32 +300,37 @@ shinyServer(
     })
     
     
-    output$isolates_organisms <- renderHighchart({
+    output$isolates_organisms <- renderPlot({
       req(nrow(amr_filt()) > 0)
       
-      df <- amr_filt() %>%
+      amr_filt() %>%
         filter(org_name != "No growth") %>%
         group_by(org_name) %>% 
         count() %>%
+        ungroup() %>%
         arrange(desc(n)) %>%
-        head(n = 25)
-      
-      highchart() %>%
-        hc_chart(type = "bar") %>%
-        hc_xAxis(categories = df$org_name) %>% 
-        hc_add_series(data = df$n, name = "Total Isolates", colorByPoint = TRUE)
+        head(n = 25) %>%
+        mutate(org_name = fct_reorder(org_name, n, .desc = FALSE)) %>%
+        ggplot(aes(x = org_name, weight = n)) + 
+        geom_bar() +
+        geom_label(aes(y = n, label = n)) +
+        labs(x = NULL, y = "Total Isolates") +
+        coord_flip() +
+        theme_minimal(base_size = 15) +
+        theme(axis.text = element_text(face = 'italic'))
     })
     
     output$table_isolates_organisms <- renderDT({
       req(nrow(amr_filt()) > 0)
       
-      df <- amr_filt() %>%
+      amr_filt() %>%
         filter(org_name != "No growth") %>%
         group_by(org_name) %>% 
         count() %>%
+        ungroup() %>%
         arrange(desc(n)) %>%
-        dplyr::rename(Organisms = org_name, Count = n) %>%
-        datatable(rownames = FALSE, filter = "none", options = list(pageLength = 100, dom = 'ft'))
+        transmute(Organisms = paste0('<em>', org_name, '</em>'), Count = n) %>%
+        datatable(rownames = FALSE, filter = "none", escape = FALSE, options = list(pageLength = 100, dom = 'ft'))
     })
     
     # AMR Tab -----------------------------------------------------------------
