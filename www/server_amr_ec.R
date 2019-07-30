@@ -77,11 +77,12 @@ output$esbl_ec <- renderHighchart({
     mutate(percent = round(100*n / total2, 1),
            resistance = case_when(
              esbl == "Positive" ~ "ESBL E. coli",
-             esbl == "Negative" ~ "Susceptible E. coli",
+             esbl == "Negative" ~ "Non-ESBL E. coli",
              TRUE ~ "Unknown")) %>%
-    mutate(resistance = factor(resistance, levels = c("Susceptible E. coli", "ESBL E. coli", "Unknown"))) %>%
+    mutate(resistance = factor(resistance, levels = c("Non-ESBL E. coli", "ESBL E. coli", "Unknown"))) %>%
     complete(resistance, nesting(spec_quarter)) %>%
-    mutate(spec_quarter = as.character(quarter(spec_quarter, with_year = TRUE)))
+    mutate(spec_quarter = as.character(quarter(spec_quarter, with_year = TRUE))) %>%
+    mutate(spec_quarter = paste0(substr(spec_quarter, 1, 4), ", Quarter ", substr(spec_quarter, 6, 7)))
   
   return(
     hchart(esbl_results, type = "column", hcaes(x = "spec_quarter", y = "percent", group = "resistance")) %>%
@@ -89,6 +90,10 @@ output$esbl_ec <- renderHighchart({
       hc_colors(cols_sir_ec_kp[c(1, 3, 4)]) %>%
       hc_tooltip(headerFormat = "",
                  pointFormat = "<b>{point.spec_quarter}</b><br> {point.resistance}: {point.percent}% <br>({point.n} of {point.total2} tested.)") %>%
-      hc_plotOptions(series = list(stacking = 'normal'))
+      hc_plotOptions(series = list(stacking = 'normal', 
+                                   dataLabels = list(enabled = TRUE,
+                                                     formatter = JS("function() { return  this.point.n  + ' of ' + this.point.total2; }"))
+      )
+      )
   )
 })

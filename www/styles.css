@@ -90,6 +90,15 @@ http://colorbrewer2.org/#type=qualitative&scheme=Set1&n=3 */
 
 /* Misc */
 
+.float-download {
+  top: calc(2%);;
+  right: calc(1%);;
+  padding: 10px;
+  z-index: 999999999;
+  position: fixed;
+}
+
+
 .watermark {
   opacity: 0.2;
   position: fixed;

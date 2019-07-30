@@ -8,7 +8,6 @@ fluidPage(
                conditionalPanel(condition = "input.tabs == 'welcome' | input.tabs == 'about'",
                                 div(class = "imgsolidborder4", img(src = "ecoli_LOMWRU.png", alt = "Antibiotic susceptibility testing of a multi-drug resistant Escherichia coli isolated from the urine of a 51 year old Lao patient with a perinephric abscess. There are no inhibition zones surrounding any of the antibiotic disks, including meropenem (MEM, 12 o’clock position), a ‘last-line’ antibiotic. Whole-genome sequencing confirmed that this isolate was carrying a NDM-5 carbapenemase. Such infections are likely to become more frequent, given the ability of carbapenemases to spread and the increasing availability of meropenem in Laos.")),
                                 htmlOutput('ui_ecoli_legend', inline = TRUE)
-                                # p("Antibiotic susceptibility testing of a multi-drug resistant", em("Escherichia coli"), "isolated from the urine of a 51 year old Lao patient with a perinephric abscess. There are no inhibition zones surrounding any of the antibiotic disks, including meropenem (MEM, 12 o’clock position), a ‘last-line’ antibiotic. Whole-genome sequencing confirmed that this isolate was carrying a NDM-5 carbapenemase. Such infections are likely to become more frequent, given the ability of carbapenemases to spread and the increasing availability of meropenem in Laos.")),
                ),
                br(),
                
@@ -80,6 +79,9 @@ fluidPage(
   ),
   
   mainPanel(width = 9,
+            conditionalPanel(condition = "input.tabs == 'patients' | input.tabs == 'specimens' | input.tabs == 'blood_culture' | input.tabs == 'organisms' | input.tabs == 'amr'",
+                             div(class = 'float-download', downloadButton("report", "Generate Report"))
+            ),
             navbarPage(NULL, position = "static-top", id = "tabs", collapsible = TRUE,  windowTitle = "LOMWRU AMR Dashboard",
                        tabPanel("Welcome", value = "welcome",
                                 fluidRow(column(width = 2, h3("Language")),
@@ -189,9 +191,8 @@ fluidPage(
                                                     highchartOutput("organism_sir_ec", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 6,
-                                                    h2("ESBL Results per quarter"),
-                                                    highchartOutput("esbl_ec", height = "600px") %>% withSpinner(),
-                                                    em("2017.3 = Third quarter of 2017")
+                                                    h2("ESBL Results per Quarter"),
+                                                    highchartOutput("esbl_ec", height = "600px") %>% withSpinner()
                                              )
                                            )
                                   ),
@@ -204,9 +205,8 @@ fluidPage(
                                                     highchartOutput("organism_sir_kp", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 6,
-                                                    h2("ESBL Results per quarter"),
-                                                    highchartOutput("esbl_kp", height = "600px") %>% withSpinner(),
-                                                    em("2017.3 = Third quarter of 2017")
+                                                    h2("ESBL Results per Quarter"),
+                                                    highchartOutput("esbl_kp", height = "600px") %>% withSpinner()
                                              )
                                            )
                                   ),
@@ -219,9 +219,8 @@ fluidPage(
                                                     highchartOutput("organism_sir_sa", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 6,
-                                                    h2("Cefoxitin MRSA per quarter"),
-                                                    highchartOutput("organism_mrsa_sa", height = "600px") %>% withSpinner(),
-                                                    em("2017.3 = Third quarter of 2017")
+                                                    h2("MRSA per Quarter"),
+                                                    highchartOutput("organism_mrsa_sa", height = "600px") %>% withSpinner()
                                              )
                                            )
                                   ),
