@@ -5,7 +5,7 @@ fluidPage(
   sidebarPanel(width = 3,
                h2("LOMWRU"),
                h3("AMR Dashboard"),
-               conditionalPanel(condition = "input.tabs == 'welcome' | input.tabs == 'about'",
+               conditionalPanel(condition = "input.tabs == 'welcome'",
                                 div(class = "imgsolidborder4", img(src = "ecoli_LOMWRU.png", alt = "Antibiotic susceptibility testing of a multi-drug resistant Escherichia coli isolated from the urine of a 51 year old Lao patient with a perinephric abscess. There are no inhibition zones surrounding any of the antibiotic disks, including meropenem (MEM, 12 o’clock position), a ‘last-line’ antibiotic. Whole-genome sequencing confirmed that this isolate was carrying a NDM-5 carbapenemase. Such infections are likely to become more frequent, given the ability of carbapenemases to spread and the increasing availability of meropenem in Laos.")),
                                 htmlOutput('ui_ecoli_legend', inline = TRUE)
                ),
@@ -103,7 +103,8 @@ fluidPage(
                                                           fileInput("file_RData", label = NULL, accept = ".RData", buttonLabel = "Upload Dataset", placeholder = "accept .RData files"))
                                          
                                   )),
-                                # includeMarkdown("./www/about_amr.md"),
+                                hr(),
+                                fluidRow(column(12, includeMarkdown("./www/about.md"))),
                                 htmlOutput('ui_about_amr', inline = TRUE),
                                 htmlOutput('ui_disclaimer_1', inline = TRUE),
                                 htmlOutput('ui_disclaimer_2', inline = TRUE),
@@ -281,10 +282,6 @@ fluidPage(
                                            )
                                   )
                                 )
-                       ),
-                       tabPanel("About", value = "about",
-                                a(href = "http://www.tropmedres.ac/home", img(src = "MORU_logo.jpg", height = "100px")),
-                                includeMarkdown("./www/about.md")
                        )
             )
   )

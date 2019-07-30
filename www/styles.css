@@ -90,6 +90,10 @@ http://colorbrewer2.org/#type=qualitative&scheme=Set1&n=3 */
 
 /* Misc */
 
+img {
+  padding-right: 30px;
+}
+
 .float-download {
   top: calc(2%);;
   right: calc(1%);;
