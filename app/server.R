@@ -11,19 +11,21 @@ shinyServer(
     })
     
     # Report
+    # https://stackoverflow.com/questions/51050306/have-downloadbutton-work-with-observeevent
+    feedback_download <- reactiveValues(download_flag = 0)
+    
     output$report <- downloadHandler(
       filename = "AMR Report.pdf",
       content = function(file) {
-        # Copy the report file to a temporary directory before processing it, in
-        # case we don't have write permissions to the current working dir (which
-        # can happen when deployed).
+        feedback_download$download_flag <- feedback_download$download_flag + 1
+        if(feedback_download$download_flag > 0) {
+          showNotification(HTML("Generation of the report typically takes 10 to 30 seconds"), duration = NULL, type = "message", id = "report_generation", session = session)
+        }
         tempReport <- file.path(tempdir(), "report.Rmd")
         file.copy("./www/report/report.Rmd", tempReport, overwrite = TRUE)
-        
-        # Knit the document, passing in the `params` list, and eval it in a
-        # child of the global environment (this isolates the code in the document
-        # from the code in this app).
         rmarkdown::render(tempReport, output_file = file)
+        removeNotification(id = "report_generation", session = session)
+        showNotification(HTML("Report Generated"), duration = 4, type = "message", id = "report_generated", session = session)
       }
     )
     
