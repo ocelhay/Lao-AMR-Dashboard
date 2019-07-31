@@ -30,7 +30,6 @@ shinyServer(
     )
     
     # Elements of the UI
-    
     output$ui_ecoli_legend <- renderText({
        HTML(i18n()$t("ecoli_legend"))
       })
