@@ -1,6 +1,6 @@
 ---
 title: "Data Preparation for Lao AMR Dashboard"
-knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = file.path('./data/', paste0("Data_Preparation_AMR_", format(Sys.time(), '%Y-%m-%d_%H%M'), ".html"))) })
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = file.path('./data/', paste0("Data_Preparation_AMR_", format(Sys.time(), '%Y-%m-%d_%Hh%M'), ".html"))) })
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -14,10 +14,8 @@ library(lubridate)
 library(readxl)
 library(tidyverse)
 
-time_start <- format(Sys.time(), '%Y-%m-%d_%H%M')
+time_start <- format(Sys.time(), '%Y-%m-%d_%Hh%M')
 ```
-
-Version 2019-07-31.
 
 # About, How to Use
 
@@ -50,8 +48,11 @@ To successfully import the data, files should be located in a folder named `data
 # when executing the command read_excel("./data/LIMS_AMR_2018-10-03.xlsx", guess_max = 21474836)
 # R will try to import the Excel file "LIMS_AMR_2018-10-03.xlsx" that is expected to be located in a
 # data subfolder in the current working directory
+
+if (interactive()) setwd("./Lao-AMR-Dashboard")
 getwd()
-amr <- read_excel("./data/LIMS_AMR_2018-10-03.xlsx", guess_max = 21474836)
+
+amr <- read_excel("./data/LIMS_AMR_01082019.xlsx", guess_max = 21474836)
 antibio_codes <- read_excel("./data/LIMS_AMR_codes.xlsx", sheet = 1)
 spec_codes <- read_excel("./data/LIMS_AMR_codes.xlsx", sheet = 2)
 org_include <- read_excel("./data/LIMS_AMR_codes.xlsx", sheet = 3)

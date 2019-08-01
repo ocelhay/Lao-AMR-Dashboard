@@ -324,7 +324,7 @@ shinyServer(
       amr_filt() %>%
         filter(org_name != "No growth") %>%
         group_by(org_name) %>% 
-        count() %>%
+        summarise(n = length(unique(spec_id))) %>%
         ungroup() %>%
         arrange(desc(n)) %>%
         head(n = 25) %>%
@@ -344,7 +344,7 @@ shinyServer(
       amr_filt() %>%
         filter(org_name != "No growth") %>%
         group_by(org_name) %>% 
-        count() %>%
+        summarise(n = length(unique(spec_id))) %>%
         ungroup() %>%
         arrange(desc(n)) %>%
         transmute(Organisms = paste0('<em>', org_name, '</em>'), Count = n) %>%
