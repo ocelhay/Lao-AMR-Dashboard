@@ -185,7 +185,7 @@ names(missing_columns[missing_columns == TRUE])
 ```{r echo = TRUE}
 amr <- amr %>% 
   replace_na(list(gender = "~ Unknown", 
-                  province = "Xaysomboon", 
+                  province = "Xaysomboun", 
                   location = "~ Unknown", 
                   org_name = "~ Unknown", 
                   esbl = "Negative",  # Following Tamalaee instructions. Negative test results should be made explicit in future updates.
@@ -201,7 +201,9 @@ amr$location[amr$location == "Mahosot hospital"] <- "Mahosot"
 amr$location[amr$location == "OPD"] <- "Mahosot"
 amr$location[amr$location == "Sethathirat Hospital (ST)"] <- "Setthathirat Hospital (ST)"
 amr$location[amr$location == "Police Hospital (PH)"] <- "Police Hospital Vientiane"
-amr$location[amr$location == "Military Hospital (MIL)"] <- "Military Hospital Vientiane"
+amr$location[amr$location == "Military Hospital (MIL)"] <- "Military Hospital Vientiane (MIL)"
+amr$location[amr$location == "Xieng Kwang Hospital (XK)"] <- "Xieng Khuang Hospital (XK)"
+amr$location[amr$location == "Luxembourg hospital, Vientiane Province (VT)"] <- "Vientiane Provincial Hospital (VTP)"
 ```
 
 
@@ -219,6 +221,11 @@ amr <- amr %>%
     amr$province == "Khammuan" ~ "Khammuane",
     amr$province == "Saravan" ~ "Salavan",
     amr$province == "Champasak" ~ "Champasack",
+    amr$province == "Savannakhet" ~ "Savanakhet",
+    amr$province == "Xaysomboon" ~ "Xaysomboun",
+    amr$province == "Xiengkhuang" ~ "Xieng Khuang",
+    amr$province == "Luangnamtha" ~ "Luang Namtha",
+    amr$province == "Luangprabang" ~ "Luang Prabang",
     TRUE ~ amr$province)) %>%
   select(-province) %>%
   rename(province = province_recode)

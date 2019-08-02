@@ -308,7 +308,10 @@ shinyServer(
       
       amr_filt() %>% 
         filter(org_name != "No growth") %>%
-        count(spec_method) %>% mutate(spec_method = fct_reorder(spec_method, n, .desc = FALSE)) %>%
+        group_by(spec_method) %>%
+        summarise(n = length(unique(spec_id))) %>%
+        ungroup() %>%
+        mutate(spec_method = fct_reorder(spec_method, n, .desc = FALSE)) %>%
         ggplot(aes(x = spec_method, weight = n)) + 
         geom_bar() +
         geom_label(aes(y = n, label = n)) +
