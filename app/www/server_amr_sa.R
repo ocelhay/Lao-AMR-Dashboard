@@ -44,8 +44,8 @@ output$organism_mrsa_sa <- renderHighchart({
            resistance = case_when(
              resistance == "S" ~ "Methicillin-susceptible SAUR (or MSSA)",
              resistance == "R" ~ "MRSA",
-             TRUE ~ "Unknown")) %>%
-    mutate(resistance = factor(resistance, levels = c("Methicillin-susceptible SAUR (or MSSA)", "MRSA", "Unknown"))) %>%
+             TRUE ~ "Not Tested")) %>%
+    mutate(resistance = factor(resistance, levels = c("Methicillin-susceptible SAUR (or MSSA)", "MRSA", "Not Tested"))) %>%
     complete(resistance, nesting(spec_quarter)) %>%
     mutate(spec_quarter = as.character(quarter(spec_quarter, with_year = TRUE))) %>%
     mutate(spec_quarter = paste0(substr(spec_quarter, 1, 4), ", Quarter ", substr(spec_quarter, 6, 7)))
