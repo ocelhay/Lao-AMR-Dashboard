@@ -19,3 +19,12 @@ output$organism_sir_st <- renderHighchart({
   
   highchart_sir(data = amr_filt(), organism = "Salmonella Typhi")
 })
+
+# Ciprofloxacin Status ---------------------------------------------------------------------------------------------------------------
+
+output$ciprofloxacin_st <- renderHighchart({
+  req(data_available())
+  
+  highchart_sir_evolution(data = amr_filt(), organism = "Salmonella Typhi", 
+                          antibiotic_vec = "Ciprofloxacin", levels = c("Ciprofloxacin-susceptible", "Ciprofloxacin-intermediate", "Ciprofloxacin-resistant", "Not Tested"))
+})

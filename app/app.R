@@ -3,6 +3,7 @@ library(DT)
 library(emo)
 library(highcharter)
 library(lubridate)
+library(readxl)
 library(shiny)
 library(shiny.i18n)
 library(shinycssloaders)
@@ -22,6 +23,13 @@ cols_esbl <- c("#2166ac", "#b2182b", "#969696")
 translator <- Translator$new(translation_csvs_path = "./www/translations/")
 
 source("./www/highchart_sir.R", local = TRUE)$value
+source("./www/highchart_sir_evolution.R", local = TRUE)$value
+
+# setwd("./Lao-AMR-Dashboard/app/")
+bugantibio <- read_excel("./www/bug-antibio_display.xlsx") %>% 
+  pivot_longer(-Antibiotics, names_to = "bug", values_to = "display") %>%
+  rename(antibio = Antibiotics)
+
 
 # Define UI ----
 ui <- fluidPage(
@@ -194,7 +202,7 @@ ui <- fluidPage(
                        ),
                        tabPanel("AMR", value = "amr", icon = icon("bug"),
                                 tabsetPanel(
-                                  tabPanel("A. baumannii",
+                                  tabPanel("Acinetobacter species",
                                            br(),
                                            fluidRow(
                                              htmlOutput("organism_isolates_ab"),
@@ -203,7 +211,9 @@ ui <- fluidPage(
                                                     highchartOutput("organism_sir_ab", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 4,
-                                                    br()
+                                                    h3("Carbapenem-resistant Acinetobacter species"),
+                                                    highchartOutput("carbapenem_ab", height = "500px") %>% withSpinner()
+                                                    
                                              )
                                            )
                                   ),
@@ -258,7 +268,8 @@ ui <- fluidPage(
                                                     highchartOutput("organism_sir_sp", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 4,
-                                                    br()
+                                                    h3("Penicillin-resistant S. pneumoniae"),
+                                                    highchartOutput("penicilin_sp", height = "500px") %>% withSpinner()
                                              )
                                            )
                                   ),
@@ -271,7 +282,22 @@ ui <- fluidPage(
                                                     highchartOutput("organism_sir_st", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 4,
-                                                    br()
+                                                    h3("Ciprofloxacin-resistant Salmonella Typhi"),
+                                                    highchartOutput("ciprofloxacin_st", height = "500px") %>% withSpinner()
+                                             )
+                                           )
+                                  ),
+                                  tabPanel("Shigella spp.",
+                                           br(),
+                                           fluidRow(
+                                             htmlOutput("organism_isolates_shig"),
+                                             column(width = 8,
+                                                    h2("Susceptibility Status"),
+                                                    highchartOutput("organism_sir_shig", height = "600px") %>% withSpinner()
+                                             ),
+                                             column(width = 4,
+                                                    h3("Ciprofloxacin-resistant Shigella spp."),
+                                                    highchartOutput("ciproflaxin_shig", height = "500px") %>% withSpinner()
                                              )
                                            )
                                   ),
@@ -284,7 +310,8 @@ ui <- fluidPage(
                                                     highchartOutput("organism_sir_ng", height = "600px") %>% withSpinner()
                                              ),
                                              column(width = 4,
-                                                    br()
+                                                    h3("Ceftriaxone-resistant N. gonorrhoeae"),
+                                                    highchartOutput("ceftriaxone_gon", height = "500px") %>% withSpinner()
                                              )
                                            )
                                   ),
@@ -675,6 +702,7 @@ server <- function(input, output, session) {
   source("www/server_amr_sa.R", local = TRUE)
   source("www/server_amr_sp.R", local = TRUE)
   source("www/server_amr_st.R", local = TRUE)
+  source("www/server_amr_shig.R", local = TRUE)
   source("www/server_amr_ng.R", local = TRUE)
   source("www/server_amr_any.R", local = TRUE)
 }

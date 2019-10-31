@@ -18,3 +18,13 @@ output$organism_sir_sp <- renderHighchart({
   
   highchart_sir(data = amr_filt(), organism = "Streptococcus pneumoniae")
 })
+
+
+# Penicilin Status ---------------------------------------------------------------------------------------------------------------
+
+output$penicilin_sp <- renderHighchart({
+  req(data_available())
+  
+  highchart_sir_evolution(data = amr_filt(), organism = "Streptococcus pneumoniae", 
+                          antibiotic_vec = "Penicillin G", levels = c("Penicillin-susceptible", "Penicillin-intermediate", "Penicillin-resistant", "Not Tested")) 
+})

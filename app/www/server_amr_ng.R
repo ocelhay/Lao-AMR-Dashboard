@@ -19,3 +19,16 @@ output$organism_sir_ng <- renderHighchart({
   
   highchart_sir(data = amr_filt(), organism = "Neisseria gonorrhoeae")
 })
+
+
+# Ceftriaxone Status ---------------------------------------------------------------------------------------------------------------
+
+output$ceftriaxone_gon <- renderHighchart({
+  req(data_available())
+  
+  organism <- "Neisseria gonorrhoeae"
+  
+  highchart_sir_evolution(data = amr_filt(), organism = organism, 
+                          antibiotic_vec = "Ceftriaxone",
+                          levels = c("Ceftriaxone-susceptible", "Ceftriaxone-intermediate", "Ceftriaxone-resistant", "Not Tested"))
+})

@@ -1,8 +1,8 @@
-# "Acinetobacter baumanii" ------------------------------------------------
+# "Acinetobacter species" ------------------------------------------------
 
 output$organism_isolates_ab <- renderText({
   req(data_available())
-  organism <- "Acinetobacter baumanii"
+  organism <- "Acinetobacter species"
   
   df <- amr_filt() %>% 
     filter(org_name == organism) 
@@ -18,3 +18,15 @@ output$organism_sir_ab <- renderHighchart({
   
   highchart_sir(data = amr_filt(), organism = "Acinetobacter baumanii")
 })
+
+
+# Carbapenem Status ---------------------------------------------------------------------------------------------------------------
+
+output$carbapenem_ab <- renderHighchart({
+  req(data_available())
+  
+  highchart_sir_evolution(data = amr_filt(), organism = "Acinetobacter species", 
+                          antibiotic_vec = c("Imipenem", "Meropenem"),
+                          levels = c("Carbapenem-susceptible", "Carbapenem-intermediate", "Carbapenem-resistant", "Not Tested"))
+})
+

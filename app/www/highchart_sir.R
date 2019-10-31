@@ -1,12 +1,16 @@
 highchart_sir <- function(data, organism) {
   
+  excl_antibio <- bugantibio %>%
+    filter(bug == organism, display == "Never") %>%
+    pull(antibio)
+  
   total_tested <- data %>% 
-    filter(org_name == organism, !is.na(antibiotic_name)) %>% 
+    filter(org_name %in% organism, !is.na(antibiotic_name), !antibiotic_name %in% excl_antibio) %>% 
     count(antibiotic_name) %>%
     rename(total_org = n)
   
   sir_results <- data %>% 
-    filter(org_name == organism, !is.na(antibiotic_name)) %>% 
+    filter(org_name %in% organism, !is.na(antibiotic_name), !antibiotic_name %in% excl_antibio) %>% 
     count(antibiotic_name, resistance) %>%
     left_join(total_tested, by = "antibiotic_name") %>%
     mutate(percent = round(100*n / total_org, 1),
