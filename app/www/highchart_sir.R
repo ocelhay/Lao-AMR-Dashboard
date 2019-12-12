@@ -1,7 +1,7 @@
 highchart_sir <- function(data, organism) {
   
   excl_antibio <- bugantibio %>%
-    filter(bug == organism, display == "Never") %>%
+    filter(bug == organism, (display == "Never" | display == "Maybe")) %>%
     pull(antibio)
   
   total_tested <- data %>% 

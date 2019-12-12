@@ -195,7 +195,7 @@ ui <- fluidPage(
                                 h2("Total Number of Isolates by Organism"),
                                 fluidRow(
                                   column(width = 8, 
-                                         p("The graph below displays the 25 organisms with the more isolates, report to the table for the complete listing."),
+                                         p("The graph below displays the 25 organisms with the most isolates, report to the table for the complete listing."),
                                          plotOutput("isolates_organisms", height = "600px") %>% withSpinner()),
                                   column(width = 4, dataTableOutput("table_isolates_organisms") %>% withSpinner())
                                 )
@@ -678,7 +678,7 @@ server <- function(input, output, session) {
       labs(x = NULL, y = "Total Isolates") +
       coord_flip() +
       theme_minimal(base_size = 15) +
-      theme(axis.text = element_text(face = 'italic'))
+      theme(axis.text.y = element_text(face = 'italic'))
   })
   
   output$table_isolates_organisms <- renderDT({

@@ -1,7 +1,3 @@
-# data <- data$amr
-# organism <- "Acinetobacter species"
-# antibiotic_vec <- c("Imipenem", "Meropenem")
-
 highchart_sir_evolution <- function(data, organism, antibiotic_vec, levels) {
   
   total_tested <- data %>%

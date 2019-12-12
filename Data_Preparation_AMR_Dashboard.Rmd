@@ -45,14 +45,14 @@ To successfully import the data, files should be located in a folder named `data
 
 ```{r, echo = TRUE}
 # "./" refers to the device working directory — the R command getwd() provides the current working directory
-# when executing the command read_excel("./data/LIMS_AMR_2018-10-03.xlsx", guess_max = 21474836)
-# R will try to import the Excel file "LIMS_AMR_2018-10-03.xlsx" that is expected to be located in a
+# when executing the command read_excel("./data/LIMS_AMR_2019-12-10.xls", guess_max = 21474836)
+# R will try to import the Excel file "LIMS_AMR_2019-12-10.xls" that is expected to be located in a
 # data subfolder in the current working directory
 
 if (interactive()) setwd("./Lao-AMR-Dashboard")
 getwd()
 
-amr <- read_excel("./data/LIMS_AMR_01082019.xlsx", guess_max = 21474836)
+amr <- read_excel("./data/LIMS_AMR_2019-12-10.xls", guess_max = 21474836)
 antibio_codes <- read_excel("./data/LIMS_AMR_codes.xlsx", sheet = 1)
 spec_codes <- read_excel("./data/LIMS_AMR_codes.xlsx", sheet = 2)
 org_include <- read_excel("./data/LIMS_AMR_codes.xlsx", sheet = 3)
@@ -196,14 +196,15 @@ amr <- amr %>%
 
 Recode location (OPD Mahosot, Police and Military Hospitals).
 ```{r echo = TRUE}
-amr$location[amr$location == "Mahosot Hospital"] <- "Mahosot"
 amr$location[amr$location == "Mahosot hospital"] <- "Mahosot"
+amr$location[amr$location == "Mahosot hospital (MH)"] <- "Mahosot"
 amr$location[amr$location == "OPD"] <- "Mahosot"
 amr$location[amr$location == "Sethathirat Hospital (ST)"] <- "Setthathirat Hospital (ST)"
 amr$location[amr$location == "Police Hospital (PH)"] <- "Police Hospital Vientiane"
 amr$location[amr$location == "Military Hospital (MIL)"] <- "Military Hospital Vientiane (MIL)"
 amr$location[amr$location == "Xieng Kwang Hospital (XK)"] <- "Xieng Khuang Hospital (XK)"
 amr$location[amr$location == "Luxembourg hospital, Vientiane Province (VT)"] <- "Vientiane Provincial Hospital (VTP)"
+amr$location[amr$location == "Luxembourg hospital, Vientiane Province (VTP)"] <- "Vientiane Provincial Hospital (VTP)"
 ```
 
 

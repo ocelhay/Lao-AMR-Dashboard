@@ -9,7 +9,7 @@ output$organism_isolates_shig <- renderText({
   df <- amr_filt() %>% 
     filter(org_name %in% organism) 
   
-  paste(h5(paste0("There are a total of ", n_distinct(df$spec_id), " distinct specimens from ", n_distinct(df$patient_id), " patients", " for ", paste0(organism, collapse = ", "), ".")))
+  paste(h5(paste0("There are a total of ", n_distinct(df$spec_id), " distinct specimens from ", n_distinct(df$patient_id), " patients", " for Shigella species.")))
 })
 
 
@@ -22,7 +22,7 @@ output$organism_sir_shig <- renderHighchart({
   data <- amr_filt()
   orga <- data$org_name %>% unique()
   organism <- "Shigella spp."
-  data$org_name <- str_replace_all(data$org_name, orga[orga %>% startsWith("Shig")], organism)
+  data$org_name <- replace(data$org_name, which(data$org_name %>% startsWith("Shig")), organism)
   
   highchart_sir(data = data, organism = organism)
 })
