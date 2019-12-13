@@ -3,7 +3,7 @@
 output$organism_isolates_ab <- renderText({
   req(data_available())
   
-  
+  orga <- data$amr$org_name %>% unique() 
   organism <- orga[orga %>% startsWith("Acinetobacter")]
   
   df <- amr_filt() %>% 
