@@ -36,8 +36,8 @@ ui <- fluidPage(
   theme = shinytheme("spacelab"),
   includeCSS("./www/styles.css"),
   
-  sidebarPanel(width = 3,
-               h2("LOMWRU"),
+  sidebarPanel(width = 4,
+               div(class = "imgsolidborder4", img(src = "LOMWRU_Partners.jpg", alt = "LOMWRU")),
                h3("AMR Dashboard"),
                conditionalPanel(condition = "input.tabs == 'welcome'",
                                 div(class = "imgsolidborder4", img(src = "ecoli_LOMWRU.png", alt = "Antibiotic susceptibility testing of a multi-drug resistant Escherichia coli isolated from the urine of a 51 year old Lao patient with a perinephric abscess. There are no inhibition zones surrounding any of the antibiotic disks, including meropenem (MEM, 12 o’clock position), a ‘last-line’ antibiotic. Whole-genome sequencing confirmed that this isolate was carrying a NDM-5 carbapenemase. Such infections are likely to become more frequent, given the ability of carbapenemases to spread and the increasing availability of meropenem in Laos.")),
@@ -53,7 +53,7 @@ ui <- fluidPage(
                                     h3(icon("filter", "fa-1x"), "Filter the Dataset:"),
                                     
                                     fluidRow(
-                                      column(width = 4, p("Patients Age Range:")),
+                                      column(width = 4, p("Patients Age Range (Year):")),
                                       column(width = 8, sliderInput("age_patients_selection", label = NULL, min = 0, max = 100, value = c(0, 100)))
                                     ),
                                     fluidRow(
@@ -112,7 +112,7 @@ ui <- fluidPage(
                )
   ),
   
-  mainPanel(width = 9,
+  mainPanel(width = 8,
             conditionalPanel(condition = "input.tabs == 'patients' | input.tabs == 'specimens' | input.tabs == 'blood_culture' | input.tabs == 'organisms' | input.tabs == 'amr'",
                              div(class = 'float-download', downloadButton("report", "Generate Report"))
             ),
@@ -140,6 +140,7 @@ ui <- fluidPage(
                                 hr(),
                                 fluidRow(column(12, includeMarkdown("./www/about.md"))),
                                 htmlOutput('ui_about_amr', inline = TRUE),
+                                htmlOutput('ui_about_app', inline = TRUE),
                                 htmlOutput('ui_disclaimer_1', inline = TRUE),
                                 htmlOutput('ui_disclaimer_2', inline = TRUE),
                                 htmlOutput('ui_disclaimer_3', inline = TRUE),
@@ -171,10 +172,10 @@ ui <- fluidPage(
                                          plotOutput("hospital_specimen_blood") %>% withSpinner()
                                   )
                                 ),
-                                h2("Total Organisms"),
+                                h2("Organism"),
                                 fluidRow(
                                   column(width = 8,
-                                         p("The graph below displays the 25 most commons organisms, report to the table for the complete listing."),
+                                         p("The graph below displays the 25 most commons organisms. Please see table to right for complete listing."),
                                          plotOutput("count_organisms_blood", height = "600px") %>% withSpinner()
                                   ),
                                   column(width = 4,
@@ -376,6 +377,10 @@ server <- function(input, output, session) {
   
   output$ui_about_amr <- renderText({
     HTML(i18n()$t("about_amr"))
+  })
+  
+  output$ui_about_app <- renderText({
+    HTML(i18n()$t("about_app"))
   })
   
   output$ui_disclaimer_1 <- renderText({

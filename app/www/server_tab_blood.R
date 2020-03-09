@@ -29,7 +29,7 @@ output$province_specimen_blood <- renderPlot({
     ggplot(aes(x = province, weight = n)) + 
     geom_bar() +
     geom_label(aes(y = 0.95*n, label = n)) +
-    labs(x = NULL, y = "Total Specimens", title = "per Patient Province", subtitle = "Blood Culture Only") +
+    labs(x = NULL, y = "Total Specimens", title = "Patients per Province", subtitle = "Blood Culture Only") +
     coord_flip() +
     theme_minimal(base_size = 15)
 })
@@ -43,7 +43,7 @@ output$hospital_specimen_blood <- renderPlot({
     ggplot(aes(x = location, weight = n)) + 
     geom_bar() +
     geom_label(aes(y = 0.95*n, label = n)) +
-    labs(x = NULL, y = "Total Specimens", title = "per Hospital/Service", subtitle = "Blood Culture Only") +
+    labs(x = NULL, y = "Total Specimens", title = "Patients per Hospital", subtitle = "Blood Culture Only") +
     coord_flip() +
     theme_minimal(base_size = 15)
 })
@@ -83,7 +83,7 @@ output$count_organisms_blood <- renderPlot({
     ggplot(aes(x = org_name, weight = n)) + 
     geom_bar() +
     geom_label(aes(y = n, label = n)) +
-    labs(x = NULL, y = "Total Organisms") +
+    labs(x = NULL, y = "Organisms") +
     coord_flip() +
     theme_minimal(base_size = 15) +
     theme(axis.text = element_text(face = 'italic'))
